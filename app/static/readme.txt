@@ -1,0 +1,1 @@
+Directory for all static files (html, css, js, resources, ...)

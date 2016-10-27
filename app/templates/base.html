@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}{% endblock %}</title>
+    <link type="text/css" rel="stylesheet" href="{{ url_for('static', filename='bootstrap/css/bootstrap.css') }}" \>
+</head>
+<body>
+    <header>
+        <div>
+            Welcome to the system!
+        </div>
+    </header>
+        {% block content %}{% endblock %}
+    <footer>
+
+    </footer>
+</body>
+</html>

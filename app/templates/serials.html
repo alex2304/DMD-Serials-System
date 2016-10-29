@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block header %}
+        <!-- Static navbar -->
+    <nav class="navbar navbar-default navbar-static-top">
+      <div class="container">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="#">Project name</a>
+        </div>
+          <ul class="nav navbar-nav navbar-right">
+            <li><a class="active" href="/serials">Serials</a></li>
+            <li><a href="">Actors</a></li>
+            <li><a href="">Writers</a></li>
+            <li><a href="">Directors</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </nav>
+{% endblock %}
+
+{% block content %}
+
+    <div class="container">
+
+        <form class="form-horizontal">
+
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-sm-4">
+                        <label for="inputTitle" class="control-label">Title</label>
+                        <input type="text" class="form-control" id="inputTitle" placeholder="Black Mirror">
+                    </div>
+                    <div class="col-sm-4">
+                        <label for="inputRating" class="control-label">Rating ≥</label>
+                        <input type="text" class="form-control" id="inputRating" placeholder="7">
+                    </div>
+                    <div class="col-sm-4">
+                        <label for="inputYear" class="control-label">Year</label>
+                        <input type="text" class="form-control" id="inputYear" placeholder="2015">
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="form-group">
+                <div class="col-sm-offset-8 col-sm-4">
+                    <button type="submit" class="btn btn-default pull-right">Search</button>
+                </div>
+            </div>
+        </form>
+
+
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Title</th>
+                        <th>Rating</th>
+                        <th>Year</th>
+                        <th>Season</th>
+                        <th>Episodes</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for i in range(0, 10) %}
+                        <tr>
+                            <td>{{ i + 1 }}</td>
+                            <td><a href="/serials/{{ i }}">Black mirror</a></td>
+                            <td>8.8</td>
+                            <td>2011</td>
+                            <td>4</td>
+                            <td>19</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+
+    </div> <!-- /container -->
+{% endblock %}
+

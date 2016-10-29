@@ -1,1 +1,1 @@
-Directory for all static files (html, css, js, resources, ...)
+Directory for all static files (css, js, resources, ...)

@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Serials list</h1>
+    {% for serial in serials -%}
+        <div>
+            <h2>{{ serial.serial_id }}</h2>
+            {{ serial.title }}
+        </div>
+    {%- endfor %}
+{% endblock %}
+
+{%  block title %}
+    Serials system
+{% endblock %}

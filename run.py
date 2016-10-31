@@ -1,6 +1,24 @@
 import os
 
+import psycopg2
+
 from app import build_app
+
+
+def drop_create_db(_app):
+    def connect_db():
+        """Connects to the database."""
+        rv = psycopg2.connect(_app.config['SQLALCHEMY_DATABASE_URI'])
+        return rv
+
+    connection = connect_db()
+    with _app.open_resource('../sql/drop_tables.sql', mode='r') as f:
+        connection.cursor().execute(f.read())
+    with _app.open_resource('../sql/create_empty_tables.sql', mode='r') as f:
+        connection.cursor().execute(f.read())
+    connection.commit()
+    print(' * Database has been successfully recreated')
+    connection.close()
 
 if __name__ == '__main__':
 
@@ -12,4 +30,6 @@ if __name__ == '__main__':
 
     # Building and run the Flask application
     app = build_app(config_name)
+    if config_name.lower() == 'development':
+        drop_create_db(app)
     app.run()

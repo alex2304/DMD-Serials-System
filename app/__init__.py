@@ -1,10 +1,13 @@
 import os
 
 from flask import Flask
+from flask.ext.sqlalchemy import SQLAlchemy
 
 """
     Building the app, registering blueprints
 """
+
+db = SQLAlchemy()
 
 
 def build_app(default_config_name):
@@ -17,6 +20,9 @@ def build_app(default_config_name):
     loaded = app.config.from_envvar('FLASK_CONFIG', silent=True)    # Override by config from ENVIRONMENT variable
     if loaded:
         print("Config from ENVIRONMENT loaded")
+
+    # Register instruments
+    db.init_app(app)
 
     # Register blueprints
     from .main import main as main_blueprint

@@ -1,7 +1,13 @@
 {% extends "base.html" %}
 
 {% block content %}
-    This is a main page
+    <h1>Serials list</h1>
+    {% for serial in serials -%}
+        <div>
+            <h2>{{ serial.serial_id }}</h2>
+            {{ serial.title }}
+        </div>
+    {%- endfor %}
 {% endblock %}
 
 {%  block title %}

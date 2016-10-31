@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+    <link href="{{ url_for('static', filename='jqcloud/jqcloud.min.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{{ url_for('static', filename='jqcloud/jqcloud.min.js') }}"></script>
+    <script type="text/javascript">
+        var basic_words = [
+            {text: "Action", weight: 13},
+            {text: "Comedy", weight: 10.5},
+            {text: "Fantasy", weight: 9.4},
+            {text: "Sit", weight: 8},
+            {text: "Amet", weight: 6.2},
+            {text: "Consectetur", weight: 5},
+            {text: "Adipiscing", weight: 5},
+            {text: "Elit", weight: 5},
+            {text: "Nam et", weight: 5},
+            {text: "Leo", weight: 4},
+            {text: "Sapien", weight: 4},
+            {text: "Pellentesque", weight: 3},
+            {text: "habitant", weight: 3},
+            {text: "morbi", weight: 3},
+            {text: "tristisque", weight: 3},
+            {text: "senectus", weight: 3},
+            {text: "et netus", weight: 3},
+            {text: "et malesuada", weight: 3},
+            {text: "fames", weight: 2},
+            {text: "ac turpis", weight: 2},
+            {text: "egestas", weight: 2},
+            {text: "Aenean", weight: 2},
+            {text: "vestibulum", weight: 2},
+            {text: "elit", weight: 2},
+            {text: "sit amet", weight: 2},
+            {text: "metus", weight: 2},
+            {text: "adipiscing", weight: 2},
+            {text: "ut ultrices", weight: 2},
+            {text: "justo", weight: 1},
+            {text: "dictum", weight: 1},
+            {text: "Ut et leo", weight: 1},
+            {text: "metus", weight: 1},
+            {text: "at molestie", weight: 1},
+            {text: "purus", weight: 1},
+            {text: "Curabitur", weight: 1},
+            {text: "diam", weight: 1},
+            {text: "dui", weight: 1},
+            {text: "ullamcorper", weight: 1},
+            {text: "id vuluptate ut", weight: 1},
+            {text: "mattis", weight: 1},
+            {text: "et nulla", weight: 1},
+            {text: "Sed", weight: 1}
+        ];
+
+        var linked_words = $.extend(true, [], basic_words);
+        linked_words.splice(0, 3,
+                {text: "Action", weight: 13, link: 'http://github.com/mistic100/jQCloud'},
+                {text: "Comedy", weight: 10.5, link: 'http://www.strangeplanet.fr'},
+                {text: "Fantasy", weight: 9.4, link: 'http://piwigo.org'}
+        );
+
+        $(function () {
+            $('#genres').jQCloud(linked_words);
+        });
+    </script>
+{% endblock %}
+
+{% block header %}
+    <!-- Static navbar -->
+    <nav class="navbar navbar-default navbar-static-top">
+        <div class="container">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">Project name</a>
+            </div>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a class="active" href="/serials">Serials</a></li>
+                <li><a href="">Actors</a></li>
+                <li><a href="">Writers</a></li>
+                <li><a href="">Directors</a></li>
+            </ul>
+        </div><!--/.nav-collapse -->
+        </div>
+    </nav>
+{% endblock %}
+
+{% block content %}
+
+    <div class="container">
+
+        <div id="genres"></div>
+
+        <form class="form-horizontal">
+
+            <div class="form-group">
+                <div class="row">
+                    <div class="col-sm-4">
+                        <label for="inputTitle" class="control-label">Title</label>
+                        <input type="text" class="form-control" id="inputTitle" placeholder="Black Mirror">
+                    </div>
+                    <div class="col-sm-4">
+                        <label for="inputRating" class="control-label">Rating ≥</label>
+                        <input type="text" class="form-control" id="inputRating" placeholder="7">
+                    </div>
+                    <div class="col-sm-4">
+                        <label for="inputYear" class="control-label">Year</label>
+                        <input type="text" class="form-control" id="inputYear" placeholder="2015">
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="form-group">
+                <div class="col-sm-offset-8 col-sm-4">
+                    <button type="submit" class="btn btn-default pull-right">Search</button>
+                </div>
+            </div>
+        </form>
+
+
+
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Title</th>
+                        <th>Rating</th>
+                        <th>Year</th>
+                        <th>Season</th>
+                        <th>Episodes</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for i in range(0, 10) %}
+                        <tr>
+                            <td>{{ i + 1 }}</td>
+                            <td><a href="/serials/{{ i }}">Black mirror</a></td>
+                            <td>8.8</td>
+                            <td>2011</td>
+                            <td>4</td>
+                            <td>19</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+
+    </div> <!-- /container -->
+{% endblock %}
+

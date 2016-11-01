@@ -190,12 +190,10 @@ CREATE TABLE role_has_award (
 CREATE TABLE serial_has_award (
   year DATE,
   award_title CHAR(50),
-  creator_id INTEGER,
   serial_id INTEGER,
 
-  PRIMARY KEY (creator_id, serial_id, award_title),
+  PRIMARY KEY (serial_id, award_title),
   FOREIGN KEY (award_title) REFERENCES serial_award (award_title) ON DELETE CASCADE ON UPDATE CASCADE,
-  FOREIGN KEY (creator_id) REFERENCES creator (creator_id) ON DELETE CASCADE ON UPDATE CASCADE,
   FOREIGN KEY (serial_id) REFERENCES serial (serial_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 

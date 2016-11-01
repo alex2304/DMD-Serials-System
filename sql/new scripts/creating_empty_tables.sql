@@ -60,10 +60,11 @@ CREATE TABLE comments (
   comment_date DATE NOT NULL,
   text CHAR(1000) NOT NULL,
   app_user_login CHAR(20),
-  season_id INTEGER,
+  season_number INTEGER,
+  serial_id INTEGER,
 
   FOREIGN KEY (app_user_login) REFERENCES app_user (login) ON DELETE CASCADE ON UPDATE CASCADE,
-  FOREIGN KEY (season_id) REFERENCES season (season_id) ON DELETE CASCADE ON UPDATE CASCADE
+  FOREIGN KEY (season_number, serial_id) REFERENCES season (season_number, serial_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE episode (
@@ -193,7 +194,7 @@ CREATE TABLE serial_has_award (
   serial_id INTEGER,
 
   PRIMARY KEY (creator_id, serial_id, award_title),
-  FOREIGN KEY (award_title) REFERENCES serial_has_award (award_title) ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY (award_title) REFERENCES serial_award (award_title) ON DELETE CASCADE ON UPDATE CASCADE,
   FOREIGN KEY (creator_id) REFERENCES creator (creator_id) ON DELETE CASCADE ON UPDATE CASCADE,
   FOREIGN KEY (serial_id) REFERENCES serial (serial_id) ON DELETE CASCADE ON UPDATE CASCADE
 );

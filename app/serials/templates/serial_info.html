@@ -27,11 +27,10 @@
                 <img class="img-responsive" src="{{ url_for('static', filename='images/360x512.png') }}" alt="">
             </div>
             <div class="col-md-9">
-                <h4 class="text-center">Black Mirror (2011 - ?)</h4>
-                <div><span>Black Mirror is a British television anthology series created by Charlie Brooker that features speculative fiction with dark and sometimes satirical themes that examine modern society, particularly with regard to the unanticipated consequences of new technologies.[1] The series is produced by Zeppotron for Endemol and was first broadcast on Channel 4 in 2011.
-
-Regarding the programme's content and structure, Brooker noted, "each episode has a different cast, a different setting, even a different reality. But they're all about the way we live now – and the way we might be living in 10 minutes' time if we're clumsy."[2] The series has received critical acclaim, and has seen an increase in interest internationally (particularly in the US) after being added to Netflix.[3] Stephen King, in particular, has noted his interest in the series.[3][4]</span>
-                </div>
+                <h4 class="text-center">{{ serial_info.title }} ({{ serial_info.release_year.strftime('%Y') }})</h4>
+                <div><span>Country: {{ serial_info.country }}</span></div>
+                <div><span>Seasons: {{ serial_info.seasons_count }}</span></div>
+                <div><span>Episodes: {{ serial_info.episodes_count }}</span></div>
             </div>
         </div>
 

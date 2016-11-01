@@ -25,7 +25,7 @@ def build_app(default_config_name):
     db.init_app(app)
 
     # Register blueprints
-    from .main import main as main_blueprint
-    app.register_blueprint(main_blueprint, url_prefix='/')
+    from .serials import serials as serials_blueprint
+    app.register_blueprint(serials_blueprint, url_prefix='/')
 
     return app

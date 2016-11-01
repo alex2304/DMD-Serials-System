@@ -147,3 +147,6 @@ CREATE TABLE Serials_awarded (
 );
 
 INSERT INTO Serials(title, release_year, country) VALUES ('Test Serial', '2015-10-11', 'Russia');
+INSERT INTO Seasons(season_number, serial_id) VALUES (1, 1);
+INSERT INTO Episodes(episode_number, title, release_date, duration, rating, season_id) VALUES(1, 'xyu Ha ga4e', '2015-07-16', 60, 5, 1);
+INSERT INTO Episodes(episode_number, title, release_date, duration, rating, season_id) VALUES(1, 'TPELLI B rapa}|{E', '2015-07-17', 50, 4, 1);

@@ -125,21 +125,21 @@
                     <tr>
                         <th>#</th>
                         <th>Title</th>
-                        <th>Rating</th>
+                        <th>Country</th>
                         <th>Year</th>
                         <th>Season</th>
                         <th>Episodes</th>
                     </tr>
                     </thead>
                     <tbody>
-                    {% for i in range(0, 10) %}
+                    {% for serial_index in range(0, serials_info|length) %}
                         <tr>
-                            <td>{{ i + 1 }}</td>
-                            <td><a href="/serials/{{ i }}">Black mirror</a></td>
-                            <td>8.8</td>
-                            <td>2011</td>
-                            <td>4</td>
-                            <td>19</td>
+                            <td>{{ serial_index + 1 }}</td>
+                            <td><a href="/serials/{{ serials_info[serial_index].serial_id }}">{{ serials_info[serial_index].title }}</a></td>
+                            <td>{{ serials_info[serial_index].country }}</td>
+                            <td>{{ serials_info[serial_index].release_year }}</td>
+                            <td>{{ serials_info[serial_index].seasons_count }}</td>
+                            <td>{{ serials_info[serial_index].episodes_count }}</td>
                         </tr>
                     {% endfor %}
                     </tbody>

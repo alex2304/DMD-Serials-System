@@ -1,8 +1,11 @@
 CREATE TABLE serial (
   serial_id SERIAL PRIMARY KEY,
   title CHAR(100) NOT NULL,
-  release_date DATE NOT NULL,
-  country CHAR(50) NOT NULL
+  release_year INTEGER NOT NULL,
+  country CHAR(50) NOT NULL,
+
+  CONSTRAINT year_must_be_less_or_equal_than_now_and_grater_1948
+  CHECK (release_year >= 1949 AND release_year <= extract(YEAR FROM current_date))
 );
 
 CREATE TABLE genre (
@@ -197,19 +200,54 @@ CREATE TABLE serial_has_award (
   FOREIGN KEY (serial_id) REFERENCES serial (serial_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-CREATE OR REPLACE FUNCTION check_data_release() RETURNS TRIGGER AS $check_data_release$
+CREATE OR REPLACE FUNCTION insert_into_episode(title CHAR(20), release_date DATE, duration INTEGER,
+  rating INTEGER, episode_number INTEGER, season_number INTEGER, serial_id INTEGER) RETURNS VOID AS $$
   BEGIN
-    IF (NEW.release_date < (SELECT s.release_date
+    -- check release_year of serial
+    IF (extract(YEAR FROM release_date) < (SELECT s.release_year
                            FROM serial s
-                           WHERE (NEW.serial_id = s.serial_id)))
+                           WHERE ($7 = s.serial_id)))
     THEN
-    RAISE EXCEPTION 'serial release_date must be smaller than episode release_date';
+      RAISE EXCEPTION 'serial release_date must be smaller than episode release_date';
     END IF;
-    RETURN NEW;
-  END;
-$check_data_release$ LANGUAGE plpgsql;
-
---DROP TRIGGER check_episode_data_release on episode;
-CREATE TRIGGER check_episode_data_release
-  BEFORE INSERT OR UPDATE ON episode
-  FOR EACH ROW EXECUTE PROCEDURE check_data_release();
+    -- if the first episode of serial just insert
+    IF (episode_number = 1 AND season_number = 1)
+      THEN
+        INSERT INTO episode VALUES ($1, $2, $3, $4, $5, $6, $7);
+    -- if the first episode os season check previous release_date
+    ELSEIF (episode_number = 1)
+      THEN
+        IF (release_date >= (SELECT e.release_date
+                          FROM episode e NATURAL JOIN (SELECT max(e1.episode_number) AS max, e1.serial_id, e1.season_number
+                                                       FROM episode e1
+                                                       GROUP BY e1.serial_id, e1.season_number) temp
+                          WHERE e.season_number = $6 - 1 AND e.serial_id = $7 AND e.episode_number = temp.max))
+          THEN
+            INSERT INTO episode VALUES ($1, $2, $3, $4, $5, $6, $7);
+        ELSE
+          RAISE EXCEPTION 'release_date must be larger or equal release_date of last episode in previous season';
+        END IF;
+    -- check previous release_date
+    ELSE
+      -- check whether episodes go one by one
+      IF (episode_number - 1 != (SELECT e.episode_number
+                          FROM episode e NATURAL JOIN (SELECT max(e1.episode_number) AS max, e1.serial_id, e1.season_number
+                                                       FROM episode e1
+                                                       GROUP BY e1.serial_id, e1.season_number) temp
+                          WHERE e.season_number = $6 AND e.serial_id = $7 AND e.episode_number = temp.max))
+        THEN
+          RAISE EXCEPTION 'episodes must go one by one';
+      END IF;
+      IF (release_date >= (SELECT e.release_date
+                          FROM episode e NATURAL JOIN (SELECT max(e1.episode_number) AS max, e1.serial_id, e1.season_number
+                                                       FROM episode e1
+                                                       GROUP BY e1.serial_id, e1.season_number) temp
+                          WHERE e.season_number = $6 AND e.serial_id = $7 AND e.episode_number = temp.max))
+        THEN
+          INSERT INTO episode VALUES ($1, $2, $3, $4, $5, $6, $7);
+      ELSE
+        RAISE EXCEPTION 'release_date must be larger or equal release_date of last episode in this season';
+      END IF;
+    END IF;
+    END;
+$$ LANGUAGE plpgsql;

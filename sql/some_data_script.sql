@@ -1,9 +1,9 @@
 --serials
-INSERT INTO serial (title, release_date, country) VALUES ('University comedy', '2001-03-01', 'Russia');
-INSERT INTO serial (title, release_date, country) VALUES ('Campus horror', '2010-02-15', 'Russia');
-INSERT INTO serial (title, release_date, country) VALUES ('I have a dream', '2011-11-11', 'Russia');
-INSERT INTO serial (title, release_date, country) VALUES ('Money honey', '2012-12-12', 'Russia');
-INSERT INTO serial (title, release_date, country) VALUES ('Everyday shuttling', '2015-03-21', 'Russia');
+INSERT INTO serial (title, release_year, country) VALUES ('University comedy', 2001, 'Russia');
+INSERT INTO serial (title, release_year, country) VALUES ('Campus horror', 2010, 'Russia');
+INSERT INTO serial (title, release_year, country) VALUES ('I have a dream', 2011, 'Russia');
+INSERT INTO serial (title, release_year, country) VALUES ('Money honey', 2012, 'Russia');
+INSERT INTO serial (title, release_year, country) VALUES ('Everyday shuttling', 2015, 'Russia');
 --seasons
 INSERT INTO season VALUES (1, 1);
 INSERT INTO season VALUES (2, 1);
@@ -12,15 +12,15 @@ INSERT INTO season VALUES (1, 3);
 INSERT INTO season VALUES (1, 4);
 INSERT INTO season VALUES (1, 5);
 --episodes
-INSERT INTO episode VALUES ('Epic start', '2001-03-02', 24, 7, 1, 1, 1);
-INSERT INTO episode VALUES ('Fuel ends', '2001-03-02', 35, 2, 2, 1, 1);
-INSERT INTO episode VALUES ('Not a journey!', '2001-03-02', 24, 8, 1, 2, 1);
-INSERT INTO episode VALUES ('Do not cry', '2001-03-02', 24, 10, 2, 2, 1);
-INSERT INTO episode VALUES ('Rubbish', '2014-04-20', 24, 7, 1, 1, 2);
-INSERT INTO episode VALUES ('Best prisoner', '2010-03-02', 24, 3, 2, 1, 2);
-INSERT INTO episode VALUES ('Foolish guy', '2013-03-02', 24, 6, 1, 1, 3);
-INSERT INTO episode VALUES ('Cave disease', '2015-11-30', 24, 2, 1, 1, 4);
-INSERT INTO episode VALUES ('Light in tunnel', '2016-11-02', 24, 9, 1, 1, 5);
+SELECT insert_into_episode('Epic start', '2001-03-02', 24, 7, 1, 1, 1);
+SELECT insert_into_episode('Fuel ends', '2001-03-02', 35, 2, 2, 1, 1);
+SELECT insert_into_episode('Not a journey!', '2001-03-02', 24, 8, 1, 2, 1);
+SELECT insert_into_episode('Do not cry', '2001-03-02', 24, 10, 2, 2, 1);
+SELECT insert_into_episode('Rubbish', '2014-04-20', 24, 7, 1, 1, 2);
+SELECT insert_into_episode('Best prisoner', '2014-04-22', 24, 3, 2, 1, 2);
+SELECT insert_into_episode('Foolish guy', '2013-03-02', 24, 6, 1, 1, 3);
+SELECT insert_into_episode('Cave disease', '2015-11-30', 24, 2, 1, 1, 4);
+SELECT insert_into_episode('Light in tunnel', '2016-11-02', 24, 9, 1, 1, 5);
 
 --persons
 INSERT INTO person (name, birthdade, genger) VALUES ('Brutus Ullson', '1983-09-09', 'm');

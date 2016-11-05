@@ -1,5 +1,3 @@
-DROP TRIGGER check_episode_data_release ON episode;
-
 DROP TABLE serial CASCADE;
 
 DROP TABLE genre CASCADE;

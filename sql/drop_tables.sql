@@ -40,8 +40,8 @@ DROP TABLE writes CASCADE;
 
 DROP TABLE actor_award CASCADE;
 
-DROP TABLE serial_has_award CASCADE;
+DROP TABLE serial_award CASCADE;
 
 DROP TABLE role_has_award CASCADE;
 
-DROP TABLE serial_award CASCADE;
+DROP TABLE serial_has_award CASCADE;

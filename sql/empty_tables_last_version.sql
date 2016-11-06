@@ -231,7 +231,14 @@ CREATE OR REPLACE FUNCTION insert_into_episode(title CHAR(20), release_date DATE
         END IF;
     -- check previous release_date
     ELSE
-      --if there is an episode in the NEXT season - raise an exception
+      -- if there is no episodes in this season - raise an exception
+      IF (NOT EXISTS(SELECT *
+                     FROM episode e
+                     WHERE e.season_number = 1 AND $7 = e.serial_id))
+        THEN
+          RAISE EXCEPTION 'there is no first episode';
+      END IF;
+      -- if there is an episode in the NEXT season - raise an exception
       IF (EXISTS(SELECT *
                  FROM episode e
                  WHERE $6 < e.season_number AND $7 = e.serial_id))
@@ -268,7 +275,7 @@ CREATE OR REPLACE FUNCTION insert_into_season(season_number INTEGER, serial_id I
         INSERT INTO season VALUES ($1, $2);
 
     -- check whether the first exists
-    ELSEIF (NOT exists(SELECT *
+    ELSEIF (NOT EXISTS(SELECT *
                        FROM season s
                        WHERE s.season_number = 1 AND $2 = s.serial_id))
       THEN

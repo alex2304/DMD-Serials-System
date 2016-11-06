@@ -55,7 +55,8 @@ CREATE TABLE season (
   serial_id INTEGER NOT NULL,
 
   PRIMARY KEY (season_number, serial_id),
-  FOREIGN KEY (serial_id) REFERENCES serial(serial_id) ON DELETE CASCADE ON UPDATE CASCADE
+  FOREIGN KEY (serial_id) REFERENCES serial(serial_id) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT season_number_must_be_grater_than_0 CHECK (season_number > 0)
 );
 
 CREATE TABLE comments (
@@ -81,7 +82,8 @@ CREATE TABLE episode (
 
   PRIMARY KEY (episode_number, season_number, serial_id),
   FOREIGN KEY (season_number, serial_id) REFERENCES season (season_number, serial_id) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT positive_rating CHECK (rating > 0 AND rating < 11)
+  CONSTRAINT positive_rating CHECK (rating > 0 AND rating < 11),
+  CONSTRAINT episode_number_must_be_grater_than_0 CHECK (episode_number > 0)
 );
 
 CREATE TABLE person (
@@ -229,6 +231,13 @@ CREATE OR REPLACE FUNCTION insert_into_episode(title CHAR(20), release_date DATE
         END IF;
     -- check previous release_date
     ELSE
+      --if there is an episode in the NEXT season - raise an exception
+      IF (EXISTS(SELECT *
+                 FROM episode e
+                 WHERE $6 < e.season_number AND $7 = e.serial_id))
+        THEN
+          RAISE EXCEPTION 'you can not add this episode in this season because there is the next season';
+      END IF;
       -- check whether episodes go one by one
       IF (episode_number - 1 != (SELECT e.episode_number
                           FROM episode e NATURAL JOIN (SELECT max(e1.episode_number) AS max, e1.serial_id, e1.season_number
@@ -250,4 +259,31 @@ CREATE OR REPLACE FUNCTION insert_into_episode(title CHAR(20), release_date DATE
       END IF;
     END IF;
     END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION insert_into_season(season_number INTEGER, serial_id INTEGER) RETURNS VOID AS $$
+  BEGIN
+    IF (season_number = 1)
+      THEN
+        INSERT INTO season VALUES ($1, $2);
+
+    -- check whether the first exists
+    ELSEIF (NOT exists(SELECT *
+                       FROM season s
+                       WHERE s.season_number = 1 AND $2 = s.serial_id))
+      THEN
+        RAISE EXCEPTION 'there is no first season';
+
+    -- seasons must go one by one
+    ELSEIF (season_number - 1 != (SELECT s.season_number
+                                  FROM season s NATURAL JOIN (SELECT max(s1.season_number) AS max, s1.serial_id
+                                                              FROM season s1
+                                                              GROUP BY s1.serial_id) temp
+                                  WHERE s.season_number = max AND $2 = s.serial_id))
+      THEN
+        RAISE EXCEPTION 'season numbers must go one by one';
+    ELSE
+      INSERT INTO season VALUES ($1, $2);
+    END IF;
+  END;
 $$ LANGUAGE plpgsql;

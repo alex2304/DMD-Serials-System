@@ -5,12 +5,12 @@ INSERT INTO serial (title, release_year, country) VALUES ('I have a dream', 2011
 INSERT INTO serial (title, release_year, country) VALUES ('Money honey', 2012, 'Russia');
 INSERT INTO serial (title, release_year, country) VALUES ('Everyday shuttling', 2015, 'Russia');
 --seasons
-INSERT INTO season VALUES (1, 1);
-INSERT INTO season VALUES (2, 1);
-INSERT INTO season VALUES (1, 2);
-INSERT INTO season VALUES (1, 3);
-INSERT INTO season VALUES (1, 4);
-INSERT INTO season VALUES (1, 5);
+SELECT insert_into_season(1, 1);
+SELECT insert_into_season(2, 1);
+SELECT insert_into_season(1, 2);
+SELECT insert_into_season(1, 3);
+SELECT insert_into_season(1, 4);
+SELECT insert_into_season(1, 5);
 --episodes
 SELECT insert_into_episode('Epic start', '2001-03-02', 24, 7, 1, 1, 1);
 SELECT insert_into_episode('Fuel ends', '2001-03-02', 35, 2, 2, 1, 1);

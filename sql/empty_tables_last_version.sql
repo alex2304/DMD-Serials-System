@@ -89,7 +89,7 @@ CREATE TABLE episode (
 CREATE TABLE person (
   person_id SERIAL PRIMARY KEY,
   name CHAR(50) NOT NULL,
-  birthdade DATE NOT NULL,
+  birthdate DATE NOT NULL,
   genger CHAR(1) NOT NULL
 );
 
@@ -178,7 +178,7 @@ CREATE TABLE serial_award (
 );
 
 CREATE TABLE role_has_award (
-  year DATE,
+  year INTEGER,
   award_title CHAR(50),
   played_id INTEGER,
   episode_number INTEGER,
@@ -189,11 +189,13 @@ CREATE TABLE role_has_award (
   FOREIGN KEY (award_title) REFERENCES actor_award (award_title) ON DELETE CASCADE ON UPDATE CASCADE,
   FOREIGN KEY (played_id) REFERENCES plays (played_id) ON DELETE CASCADE ON UPDATE CASCADE,
   FOREIGN KEY (episode_number, season_number, serial_id) REFERENCES
-    episode (episode_number, season_number, serial_id) ON DELETE CASCADE ON UPDATE CASCADE
+    episode (episode_number, season_number, serial_id) ON DELETE CASCADE ON UPDATE CASCADE,
+
+  CHECK (year >= 1949 AND year <= extract(YEAR FROM current_date))
 );
 
 CREATE TABLE serial_has_award (
-  year DATE,
+  year INTEGER,
   award_title CHAR(50),
   serial_id INTEGER,
 
@@ -292,5 +294,247 @@ CREATE OR REPLACE FUNCTION insert_into_season(season_number INTEGER, serial_id I
     ELSE
       INSERT INTO season VALUES ($1, $2);
     END IF;
+  END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION insert_into_serial(title CHAR(100), release_year INTEGER,country CHAR(50)) RETURNS VOID AS $$
+  BEGIN
+    INSERT INTO serial (title, release_year, country) VALUES ($1, $2, $3);
+  END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION insert_into_person(name CHAR(50), birthdate DATE, genger CHAR(1)) RETURNS VOID AS $$
+  BEGIN
+    INSERT INTO person (name, birthdate, genger) VALUES ($1, $2, $3);
+  END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION insert_into_director(name CHAR(50), birthdate DATE, genger CHAR(1)) RETURNS VOID AS $$
+  DECLARE pperson_id INTEGER;
+  BEGIN
+    pperson_id = (SELECT p.person_id
+        FROM person p
+        WHERE p.name = $1 AND p.birthdate = $2 AND p.genger = $3);
+    IF (pperson_id IS NOT NULL)
+      THEN
+        INSERT INTO director VALUES (pperson_id);
+      ELSE
+        INSERT INTO person (name, birthdate, genger) VALUES ($1, $2, $3);
+        pperson_id = (SELECT p.person_id
+                      FROM person p
+                      WHERE p.name = $1 AND p.birthdate = $2 AND p.genger = $3);
+        INSERT INTO director VALUES (pperson_id);
+    END IF;
+  END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION insert_into_director(person_id INTEGER) RETURNS VOID AS $$
+  BEGIN
+        INSERT INTO director VALUES ($1);
+  END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION insert_into_creator(name CHAR(50), birthdate DATE, genger CHAR(1)) RETURNS VOID AS $$
+  DECLARE pperson_id INTEGER;
+  BEGIN
+    pperson_id = (SELECT p.person_id
+        FROM person p
+        WHERE p.name = $1 AND p.birthdate = $2 AND p.genger = $3);
+    IF (pperson_id IS NOT NULL)
+      THEN
+        INSERT INTO creator VALUES (pperson_id);
+      ELSE
+        INSERT INTO person (name, birthdate, genger) VALUES ($1, $2, $3);
+        pperson_id = (SELECT p.person_id
+                      FROM person p
+                      WHERE p.name = $1 AND p.birthdate = $2 AND p.genger = $3);
+        INSERT INTO creator VALUES (pperson_id);
+    END IF;
+  END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION insert_into_creator(person_id INTEGER) RETURNS VOID AS $$
+  BEGIN
+        INSERT INTO creator VALUES ($1);
+  END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION insert_into_writer(name CHAR(50), birthdate DATE, genger CHAR(1)) RETURNS VOID AS $$
+  DECLARE pperson_id INTEGER;
+  BEGIN
+    pperson_id = (SELECT p.person_id
+        FROM person p
+        WHERE p.name = $1 AND p.birthdate = $2 AND p.genger = $3);
+    IF (pperson_id IS NOT NULL)
+      THEN
+        INSERT INTO writer VALUES (pperson_id);
+      ELSE
+        INSERT INTO person (name, birthdate, genger) VALUES ($1, $2, $3);
+        pperson_id = (SELECT p.person_id
+                      FROM person p
+                      WHERE p.name = $1 AND p.birthdate = $2 AND p.genger = $3);
+        INSERT INTO writer VALUES (pperson_id);
+    END IF;
+  END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION insert_into_writer(person_id INTEGER) RETURNS VOID AS $$
+  BEGIN
+        INSERT INTO writer VALUES ($1);
+  END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION insert_into_actor(name CHAR(50), birthdate DATE, genger CHAR(1)) RETURNS VOID AS $$
+  DECLARE pperson_id INTEGER;
+  BEGIN
+    pperson_id = (SELECT p.person_id
+        FROM person p
+        WHERE p.name = $1 AND p.birthdate = $2 AND p.genger = $3);
+    IF (pperson_id IS NOT NULL)
+      THEN
+        INSERT INTO actor VALUES (pperson_id);
+      ELSE
+        INSERT INTO person (name, birthdate, genger) VALUES ($1, $2, $3);
+        pperson_id = (SELECT p.person_id
+                      FROM person p
+                      WHERE p.name = $1 AND p.birthdate = $2 AND p.genger = $3);
+        INSERT INTO actor VALUES (pperson_id);
+    END IF;
+  END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION insert_into_actor(person_id INTEGER) RETURNS VOID AS $$
+  BEGIN
+        INSERT INTO actor VALUES ($1);
+  END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION insert_into_creates(creator_id INTEGER, serial_id INTEGER) RETURNS VOID AS $$
+  BEGIN
+        INSERT INTO creates VALUES ($1, $2);
+  END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION insert_into_directs(director_id INTEGER, episode_is INTEGER,
+  season_id INTEGER, serial_id INTEGER) RETURNS VOID AS $$
+  BEGIN
+        INSERT INTO directs VALUES ($1, $2, $3, $4);
+  END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION insert_into_writes(writer_id INTEGER, episode_is INTEGER,
+  season_id INTEGER, serial_id INTEGER) RETURNS VOID AS $$
+  BEGIN
+        INSERT INTO writes VALUES ($1, $2, $3, $4);
+  END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION insert_into_genre(genre_title CHAR(50)) RETURNS VOID AS $$
+  BEGIN
+        INSERT INTO genre VALUES ($1);
+  END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION insert_into_serial_has_genre(serial_id INTEGER, genre_title CHAR(50)) RETURNS VOID AS $$
+  BEGIN
+        INSERT INTO serial_has_genre VALUES ($1, $2);
+  END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION insert_into_serial_award(award_title CHAR(50)) RETURNS VOID AS $$
+  BEGIN
+        INSERT INTO serial_award VALUES ($1);
+  END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION insert_into_serial_has_award(year INTEGER, award_title CHAR(50), serial_id INTEGER) RETURNS VOID AS $$
+  BEGIN
+    IF ($1 < (SELECT s.release_year
+                FROM serial s
+                WHERE s.serial_id = $3))
+      THEN
+        RAISE EXCEPTION 'release year must be less than or equal award year ';
+      ELSE
+        INSERT INTO serial_has_award VALUES ($1, $2, $3);
+    END IF;
+  END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION insert_into_role(title CHAR(50)) RETURNS VOID AS $$
+  BEGIN
+    IF (exists(SELECT *
+               FROM role r
+               WHERE r.title = $1))
+      THEN
+        RETURN;
+      ELSE
+        INSERT INTO role (title) VALUES ($1);
+    END IF;
+  END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION insert_into_plays(role_id INTEGER, actor_id INTEGER) RETURNS VOID AS $$
+  BEGIN
+    INSERT INTO plays (role_id, actor_id) VALUES ($1, $2);
+  END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION insert_into_actor_award(award_title CHAR(50)) RETURNS VOID AS $$
+  BEGIN
+        INSERT INTO actor_award VALUES ($1);
+  END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION insert_into_role_has_award(year INTEGER, award_title CHAR(50), played_id INTEGER,
+  episode_number INTEGER, season_number INTEGER, serial_id INTEGER) RETURNS VOID AS $$
+  BEGIN
+    IF ($1 < extract(YEAR FROM (SELECT e.release_date
+                FROM episode e
+                WHERE e.episode_number = $4 AND e.season_number = $5 AND e.serial_id = $6)))
+      THEN
+        RAISE EXCEPTION 'episode release date year must be less than or equal award year';
+      ELSE
+        INSERT INTO role_has_award VALUES ($1, $2, $3, $4, $5, $6);
+    END IF;
+  END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION insert_into_films(played_id INTEGER, episode_number INTEGER, season_number INTEGER,
+  serial_id INTEGER) RETURNS VOID AS $$
+  BEGIN
+        INSERT INTO films VALUES ($1, $2, $3, $4);
+  END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION insert_into_app_user(login CHAR(20),vk_id INTEGER, email CHAR(50)) RETURNS VOID AS $$
+  BEGIN
+        INSERT INTO app_user VALUES ($1, $2, $3);
+  END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION insert_into_subscribes(login CHAR(20), serial_id INTEGER) RETURNS VOID AS $$
+  BEGIN
+        INSERT INTO subscribes VALUES ($1, $2);
+  END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION insert_into_comments(comment_date DATE, text CHAR(1000), app_user_login CHAR(20),
+  season_number INTEGER, serial_id INTEGER) RETURNS VOID AS $$
+  BEGIN
+        INSERT INTO comments (comment_date, text, app_user_login, season_number, serial_id) VALUES ($1, $2, $3, $4, $5);
+  END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION insert_into_reviews(app_user_login CHAR(20), serial_id INTEGER, title CHAR(50),
+  text CHAR(10000), review_date DATE) RETURNS VOID AS $$
+  BEGIN
+    IF (extract(YEAR FROM $5) < (SELECT s.release_year
+                FROM serial s
+                WHERE s.serial_id = $2))
+      THEN
+        RAISE EXCEPTION 'review can not be published before serial have been released';
+      ELSE
+        INSERT INTO reviews VALUES ($1, $2, $3, $4, $5);
+      END IF;
   END;
 $$ LANGUAGE plpgsql;

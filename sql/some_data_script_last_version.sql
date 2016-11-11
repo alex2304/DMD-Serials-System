@@ -1,9 +1,9 @@
 --serials
-INSERT INTO serial (title, release_year, country) VALUES ('University comedy', 2001, 'Russia');
-INSERT INTO serial (title, release_year, country) VALUES ('Campus horror', 2010, 'Russia');
-INSERT INTO serial (title, release_year, country) VALUES ('I have a dream', 2011, 'Russia');
-INSERT INTO serial (title, release_year, country) VALUES ('Money honey', 2012, 'Russia');
-INSERT INTO serial (title, release_year, country) VALUES ('Everyday shuttling', 2015, 'Russia');
+SELECT insert_into_serial('University comedy', 2001, 'Russia');
+SELECT insert_into_serial('Campus horror', 2010, 'Russia');
+SELECT insert_into_serial('I have a dream', 2011, 'Russia');
+SELECT insert_into_serial('Everyday shuttling', 2015, 'Russia');
+SELECT insert_into_serial('The Dutch', 2016, 'USA');
 --seasons
 SELECT insert_into_season(1, 1);
 SELECT insert_into_season(2, 1);
@@ -23,218 +23,215 @@ SELECT insert_into_episode('Cave disease', '2015-11-30', 24, 2, 1, 1, 4);
 SELECT insert_into_episode('Light in tunnel', '2016-11-02', 24, 9, 1, 1, 5);
 
 --persons
-INSERT INTO person (name, birthdade, genger) VALUES ('Brutus Ullson', '1983-09-09', 'm');
-INSERT INTO person (name, birthdade, genger) VALUES ('Emma fon Schmidt', '1987-07-25', 'f');
-INSERT INTO person (name, birthdade, genger) VALUES ('Dill Duck', '1964-12-31', 'm');
-INSERT INTO person (name, birthdade, genger) VALUES ('Bill Deal', '1978-03-14', 'm');
-INSERT INTO person (name, birthdade, genger) VALUES ('Mary Paris', '1994-02-03', 'f');
+SELECT insert_into_person('Brutus Ullson', '1983-09-09', 'm');
+SELECT insert_into_person('Emma fon Schmidt', '1987-07-25', 'f');
+SELECT insert_into_person('Dill Duck', '1964-12-31', 'm');
+SELECT insert_into_person('Bill Deal', '1978-03-14', 'm');
+SELECT insert_into_person('Mary Paris', '1994-02-03', 'f');
 --creators
-INSERT INTO creator VALUES (1);
-INSERT INTO creator VALUES (2);
-INSERT INTO creator VALUES (3);
-INSERT INTO creator VALUES (4);
-INSERT INTO creator VALUES (5);
+SELECT insert_into_creator(1);
+SELECT insert_into_creator(2);
+SELECT insert_into_creator(3);
+SELECT insert_into_creator(4);
+SELECT insert_into_creator(5);
 --creates
-INSERT INTO creates VALUES (1, 1);
-INSERT INTO creates VALUES (2, 1);
-INSERT INTO creates VALUES (2, 2);
-INSERT INTO creates VALUES (3, 3);
-INSERT INTO creates VALUES (4, 4);
-INSERT INTO creates VALUES (5, 5);
+SELECT insert_into_creates(1, 1);
+SELECT insert_into_creates(2, 1);
+SELECT insert_into_creates(2, 2);
+SELECT insert_into_creates(3, 3);
+SELECT insert_into_creates(4, 4);
+SELECT insert_into_creates(5, 5);
 --persons
-INSERT INTO person (name, birthdade, genger) VALUES ('Jan Jack', '1979-05-13', 'm');
-INSERT INTO person (name, birthdade, genger) VALUES ('Fill Bill', '1945-10-09', 'm');
-INSERT INTO person (name, birthdade, genger) VALUES ('Stella Muck', '1989-02-28', 'f');
-INSERT INTO person (name, birthdade, genger) VALUES ('Bella Kick', '1997-08-22', 'f');
-INSERT INTO person (name, birthdade, genger) VALUES ('John Bon', '1977-07-07', 'm');
+SELECT insert_into_person('Jan Jack', '1979-05-13', 'm');
+SELECT insert_into_person('Fill Bill', '1945-10-09', 'm');
+SELECT insert_into_person('Stella Muck', '1989-02-28', 'f');
+SELECT insert_into_person('Bella Kick', '1997-08-22', 'f');
+SELECT insert_into_person('John Bon', '1977-07-07', 'm');
 --writers
-INSERT INTO writer VALUES (6);
-INSERT INTO writer VALUES (7);
-INSERT INTO writer VALUES (8);
-INSERT INTO writer VALUES (9);
-INSERT INTO writer VALUES (10);
+SELECT insert_into_writer(6);
+SELECT insert_into_writer(7);
+SELECT insert_into_writer(8);
+SELECT insert_into_writer(9);
+SELECT insert_into_writer(10);
 --writes
-INSERT INTO writes VALUES (6, 1, 1, 1);
-INSERT INTO writes VALUES (6, 2, 1, 1);
-INSERT INTO writes VALUES (7, 2, 1, 1);
-INSERT INTO writes VALUES (8, 1, 2, 1);
-INSERT INTO writes VALUES (6, 2, 2, 1);
-INSERT INTO writes VALUES (9, 1, 1, 2);
-INSERT INTO writes VALUES (10, 2, 1, 2);
-INSERT INTO writes VALUES (7, 1, 1, 3);
-INSERT INTO writes VALUES (8, 1, 1, 4);
-INSERT INTO writes VALUES (9, 1, 1, 5);
+SELECT insert_into_writes(6, 1, 1, 1);
+SELECT insert_into_writes(6, 2, 1, 1);
+SELECT insert_into_writes(7, 2, 1, 1);
+SELECT insert_into_writes(8, 1, 2, 1);
+SELECT insert_into_writes(6, 2, 2, 1);
+SELECT insert_into_writes(9, 1, 1, 2);
+SELECT insert_into_writes(10, 2, 1, 2);
+SELECT insert_into_writes(7, 1, 1, 3);
+SELECT insert_into_writes(8, 1, 1, 4);
+SELECT insert_into_writes(9, 1, 1, 5);
 --directors
-INSERT INTO director VALUES (3);
-INSERT INTO director VALUES (4);
-INSERT INTO director VALUES (5);
-INSERT INTO director VALUES (6);
-INSERT INTO director VALUES (7);
+SELECT insert_into_director(3);
+SELECT insert_into_director(4);
+SELECT insert_into_director(5);
+SELECT insert_into_director(6);
+SELECT insert_into_director(7);
 --directs
-INSERT INTO directs VALUES (3, 1, 1, 1);
-INSERT INTO directs VALUES (4, 2, 1, 1);
-INSERT INTO directs VALUES (5, 1, 2, 1);
-INSERT INTO directs VALUES (6, 2, 2, 1);
-INSERT INTO directs VALUES (7, 1, 1, 2);
-INSERT INTO directs VALUES (3, 2, 1, 2);
-INSERT INTO directs VALUES (4, 1, 1, 3);
-INSERT INTO directs VALUES (5, 1, 1, 4);
-INSERT INTO directs VALUES (6, 1, 1, 5);
+SELECT insert_into_directs(3, 1, 1, 1);
+SELECT insert_into_directs(4, 2, 1, 1);
+SELECT insert_into_directs(5, 1, 2, 1);
+SELECT insert_into_directs(6, 2, 2, 1);
+SELECT insert_into_directs(7, 1, 1, 2);
+SELECT insert_into_directs(3, 2, 1, 2);
+SELECT insert_into_directs(4, 1, 1, 3);
+SELECT insert_into_directs(5, 1, 1, 4);
+SELECT insert_into_directs(6, 1, 1, 5);
 
 --persons
-INSERT INTO person (name, birthdade, genger) VALUES ('Rick Pick', '1995-07-20', 'm');
-INSERT INTO person (name, birthdade, genger) VALUES ('Ben Pen', '1982-12-15', 'm');
-INSERT INTO person (name, birthdade, genger) VALUES ('Nil Gill', '1992-10-01', 'm');
-INSERT INTO person (name, birthdade, genger) VALUES ('Sara Para-pa-para', '1998-04-01', 'f');
-INSERT INTO person (name, birthdade, genger) VALUES ('Milla Milk', '1980-10-19', 'f');
-INSERT INTO person (name, birthdade, genger) VALUES ('Kira Witch', '1988-08-08', 'f');
-INSERT INTO person (name, birthdade, genger) VALUES ('Peter Potter', '1990-04-03', 'm');
-INSERT INTO person (name, birthdade, genger) VALUES ('Curt Burt', '1974-05-06', 'm');
-INSERT INTO person (name, birthdade, genger) VALUES ('Daren Paren', '1978-11-28', 'm');
-INSERT INTO person (name, birthdade, genger) VALUES ('Mark Dark', '1963-06-020', 'm');
+SELECT insert_into_person('Rick Pick', '1995-07-20', 'm');
+SELECT insert_into_person('Ben Pen', '1982-12-15', 'm');
+SELECT insert_into_person('Nil Gill', '1992-10-01', 'm');
+SELECT insert_into_person('Sara Para-pa-para', '1998-04-01', 'f');
+SELECT insert_into_person('Milla Milk', '1980-10-19', 'f');
+SELECT insert_into_person('Kira Witch', '1988-08-08', 'f');
+SELECT insert_into_person('Peter Potter', '1990-04-03', 'm');
+SELECT insert_into_person('Curt Burt', '1974-05-06', 'm');
+SELECT insert_into_person('Daren Paren', '1978-11-28', 'm');
+SELECT insert_into_person('Mark Dark', '1963-06-020', 'm');
 --actors
-INSERT INTO actor VALUES (1);
-INSERT INTO actor VALUES (2);
-INSERT INTO actor VALUES (3);
-INSERT INTO actor VALUES (8);
-INSERT INTO actor VALUES (9);--5
-INSERT INTO actor VALUES (10);
-INSERT INTO actor VALUES (11);
-INSERT INTO actor VALUES (12);
-INSERT INTO actor VALUES (13);
-INSERT INTO actor VALUES (14);--10
-INSERT INTO actor VALUES (15);
-INSERT INTO actor VALUES (16);
-INSERT INTO actor VALUES (17);
-INSERT INTO actor VALUES (18);
-INSERT INTO actor VALUES (19);--15
-INSERT INTO actor VALUES (20);
+SELECT insert_into_actor(1);
+SELECT insert_into_actor(2);
+SELECT insert_into_actor(3);
+SELECT insert_into_actor(8);
+SELECT insert_into_actor(9);--5
+SELECT insert_into_actor(10);
+SELECT insert_into_actor(11);
+SELECT insert_into_actor(12);
+SELECT insert_into_actor(13);
+SELECT insert_into_actor(14);--10
+SELECT insert_into_actor(15);
+SELECT insert_into_actor(16);
+SELECT insert_into_actor(17);
+SELECT insert_into_actor(18);
+SELECT insert_into_actor(19);--15
+SELECT insert_into_actor(20);
 
 --genres
-INSERT INTO genre VALUES ('horror');
-INSERT INTO genre VALUES ('comedy');
-INSERT INTO genre VALUES ('thriller');
-INSERT INTO genre VALUES ('romance');
-INSERT INTO genre VALUES ('drama');
+SELECT insert_into_genre('horror');
+SELECT insert_into_genre('comedy');
+SELECT insert_into_genre('thriller');
+SELECT insert_into_genre('romance');
+SELECT insert_into_genre('drama');
 --serial has genre
-INSERT INTO serial_has_genre VALUES (1, 'horror');
-INSERT INTO serial_has_genre VALUES (1, 'thriller');
-INSERT INTO serial_has_genre VALUES (1, 'drama');
-INSERT INTO serial_has_genre VALUES (2, 'drama');
-INSERT INTO serial_has_genre VALUES (3, 'thriller');
-INSERT INTO serial_has_genre VALUES (3, 'romance');
-INSERT INTO serial_has_genre VALUES (4, 'horror');
-INSERT INTO serial_has_genre VALUES (4, 'comedy');
-INSERT INTO serial_has_genre VALUES (5, 'horror');
-INSERT INTO serial_has_genre VALUES (5, 'drama');
+SELECT insert_into_serial_has_genre(1, 'horror');
+SELECT insert_into_serial_has_genre(1, 'thriller');
+SELECT insert_into_serial_has_genre(1, 'drama');
+SELECT insert_into_serial_has_genre(2, 'drama');
+SELECT insert_into_serial_has_genre(3, 'thriller');
+SELECT insert_into_serial_has_genre(3, 'romance');
+SELECT insert_into_serial_has_genre(4, 'horror');
+SELECT insert_into_serial_has_genre(4, 'comedy');
+SELECT insert_into_serial_has_genre(5, 'horror');
+SELECT insert_into_serial_has_genre(5, 'drama');
 
 --serial award
-INSERT INTO serial_award VALUES ('best horror');
-INSERT INTO serial_award VALUES ('best drama');
+SELECT insert_into_serial_award('best horror');
+SELECT insert_into_serial_award('best drama');
 --serial has award
-INSERT INTO serial_has_award VALUES ('2016-11-02', 'best horror', 1);
-INSERT INTO serial_has_award VALUES ('2015-11-02', 'best horror', 2);
-INSERT INTO serial_has_award VALUES ('2016-11-02', 'best drama', 2);
+SELECT insert_into_serial_has_award(2016, 'best horror', 1);
+SELECT insert_into_serial_has_award(2015, 'best horror', 2);
+SELECT insert_into_serial_has_award(2016, 'best drama', 2);
 
 --roles
-INSERT INTO role (title) VALUES ('Tree');
-INSERT INTO role (title) VALUES ('Barbara');
-INSERT INTO role (title) VALUES ('Bill');
-INSERT INTO role (title) VALUES ('Strange person');
-INSERT INTO role (title) VALUES ('Chef');--5
-INSERT INTO role (title) VALUES ('Cooker');
-INSERT INTO role (title) VALUES ('Gungster');
-INSERT INTO role (title) VALUES ('Thief');
-INSERT INTO role (title) VALUES ('Adam');
-INSERT INTO role (title) VALUES ('Tim');--10
-INSERT INTO role (title) VALUES ('Alla');
+SELECT insert_into_role('Tree');
+SELECT insert_into_role('Barbara');
+SELECT insert_into_role('Bill');
+SELECT insert_into_role('Strange person');
+SELECT insert_into_role('Chef');--5
+SELECT insert_into_role('Cooker');
+SELECT insert_into_role('Gungster');
+SELECT insert_into_role('Thief');
+SELECT insert_into_role('Adam');
+SELECT insert_into_role('Tim');--10
+SELECT insert_into_role('Alla');
 --playes
-INSERT INTO plays (role_id, actor_id) VALUES (1, 1);
-INSERT INTO plays (role_id, actor_id) VALUES (1, 2);
-INSERT INTO plays (role_id, actor_id) VALUES (2, 3);
-INSERT INTO plays (role_id, actor_id) VALUES (3, 8);
-INSERT INTO plays (role_id, actor_id) VALUES (3, 9);--5
-INSERT INTO plays (role_id, actor_id) VALUES (4, 10);
-INSERT INTO plays (role_id, actor_id) VALUES (4, 8);
-INSERT INTO plays (role_id, actor_id) VALUES (5, 8);
-INSERT INTO plays (role_id, actor_id) VALUES (6, 9);
-INSERT INTO plays (role_id, actor_id) VALUES (7, 10);--10
-INSERT INTO plays (role_id, actor_id) VALUES (8, 11);
-INSERT INTO plays (role_id, actor_id) VALUES (9, 12);
-INSERT INTO plays (role_id, actor_id) VALUES (9, 13);
-INSERT INTO plays (role_id, actor_id) VALUES (10, 14);
-INSERT INTO plays (role_id, actor_id) VALUES (11, 15);--15
-INSERT INTO plays (role_id, actor_id) VALUES (11, 16);
+SELECT insert_into_plays(1, 1);
+SELECT insert_into_plays(1, 2);
+SELECT insert_into_plays(2, 3);
+SELECT insert_into_plays(3, 8);
+SELECT insert_into_plays(3, 9);--5
+SELECT insert_into_plays(4, 10);
+SELECT insert_into_plays(4, 8);
+SELECT insert_into_plays(5, 8);
+SELECT insert_into_plays(6, 9);
+SELECT insert_into_plays(7, 10);--10
+SELECT insert_into_plays(8, 11);
+SELECT insert_into_plays(9, 12);
+SELECT insert_into_plays(9, 13);
+SELECT insert_into_plays(10, 14);
+SELECT insert_into_plays(11, 15);--15
+SELECT insert_into_plays(11, 16);
 
 --actor award
-INSERT INTO actor_award VALUES ('best role');
-INSERT INTO actor_award VALUES ('worst role');
+SELECT insert_into_actor_award('best role');
+SELECT insert_into_actor_award('worst role');
 --role_has_award
-INSERT INTO role_has_award VALUES ('2015-04-04', 'best role', 1, 1, 1, 1);
-INSERT INTO role_has_award VALUES ('2015-04-04', 'worst role', 2, 2, 1, 1);
-INSERT INTO role_has_award VALUES ('2015-04-04', 'best role', 1, 1, 2, 1);
-INSERT INTO role_has_award VALUES ('2016-11-04', 'worst role', 4, 2, 2, 1);
-INSERT INTO role_has_award VALUES ('2016-12-04', 'best role', 1, 1, 1, 3);
+SELECT insert_into_role_has_award(2015, 'best role', 1, 1, 1, 1);
+SELECT insert_into_role_has_award(2015, 'worst role', 2, 2, 1, 1);
+SELECT insert_into_role_has_award(2015, 'best role', 1, 1, 2, 1);
+SELECT insert_into_role_has_award(2016, 'worst role', 4, 2, 2, 1);
+SELECT insert_into_role_has_award(2016, 'best role', 1, 1, 1, 3);
 
 --films
-INSERT INTO films VALUES (1, 1, 1, 1);
-INSERT INTO films VALUES (2, 1, 1, 1);
-INSERT INTO films VALUES (3, 1, 1, 1);
-INSERT INTO films VALUES (1, 2, 1, 1);
-INSERT INTO films VALUES (2, 2, 1, 1);--5
-INSERT INTO films VALUES (1, 1, 2, 1);
-INSERT INTO films VALUES (4, 2, 2, 1);
-INSERT INTO films VALUES (5, 1, 1, 2);
-INSERT INTO films VALUES (6, 1, 1, 2);
-INSERT INTO films VALUES (5, 2, 1, 2);--10
-INSERT INTO films VALUES (6, 2, 1, 2);
-INSERT INTO films VALUES (7, 2, 1, 2);
-INSERT INTO films VALUES (8, 1, 1, 3);
-INSERT INTO films VALUES (9, 1, 1, 3);
-INSERT INTO films VALUES (10, 1, 1, 3);--15
-INSERT INTO films VALUES (1, 1, 1, 3);
-INSERT INTO films VALUES (11, 1, 1, 4);
-INSERT INTO films VALUES (12, 1, 1, 4);
-INSERT INTO films VALUES (13, 1, 1, 4);
-INSERT INTO films VALUES (14, 1, 1, 4);--20
-INSERT INTO films VALUES (14, 1, 1, 5);
-INSERT INTO films VALUES (1, 1, 1, 5);
-INSERT INTO films VALUES (15, 1, 1, 5);
-INSERT INTO films VALUES (16, 1, 1, 5);--24
+SELECT insert_into_films(1, 1, 1, 1);
+SELECT insert_into_films(2, 1, 1, 1);
+SELECT insert_into_films(3, 1, 1, 1);
+SELECT insert_into_films(1, 2, 1, 1);
+SELECT insert_into_films(2, 2, 1, 1);--5
+SELECT insert_into_films(1, 1, 2, 1);
+SELECT insert_into_films(4, 2, 2, 1);
+SELECT insert_into_films(5, 1, 1, 2);
+SELECT insert_into_films(6, 1, 1, 2);
+SELECT insert_into_films(5, 2, 1, 2);--10
+SELECT insert_into_films(6, 2, 1, 2);
+SELECT insert_into_films(7, 2, 1, 2);
+SELECT insert_into_films(8, 1, 1, 3);
+SELECT insert_into_films(9, 1, 1, 3);
+SELECT insert_into_films(10, 1, 1, 3);--15
+SELECT insert_into_films(1, 1, 1, 3);
+SELECT insert_into_films(11, 1, 1, 4);
+SELECT insert_into_films(12, 1, 1, 4);
+SELECT insert_into_films(13, 1, 1, 4);
+SELECT insert_into_films(14, 1, 1, 4);--20
+SELECT insert_into_films(14, 1, 1, 5);
+SELECT insert_into_films(1, 1, 1, 5);
+SELECT insert_into_films(15, 1, 1, 5);
+SELECT insert_into_films(16, 1, 1, 5);--24
 
 --app_users
-INSERT INTO app_user VALUES ('paprika', 123456, 'yayaya@mail.ru');
-INSERT INTO app_user VALUES ('foreach', 492874, 'foreach@mail.ru');
-INSERT INTO app_user VALUES ('feedback', 1355, 'feedback@gmail.com');
-INSERT INTO app_user VALUES ('disk', 11111, 'disk@mail.ru');
-INSERT INTO app_user VALUES ('sobaka', 5433546, 'sobaka@mail.ru');
-INSERT INTO app_user VALUES ('dog', 10887776, 'doggy@mail.ru');
-INSERT INTO app_user VALUES ('duck_night', 655599, 'duck@mail.ru');
-INSERT INTO app_user VALUES ('sleep_tonight', 1566977, 'sleeeeeeep@mail.ru');
-INSERT INTO app_user VALUES ('tomorrow_gun', 1146879087, 'guntom@mail.ru');
-INSERT INTO app_user VALUES ('pictures', 2457886, 'pictures@mail.ru');
+SELECT insert_into_app_user('paprika', 123456, 'yayaya@mail.ru');
+SELECT insert_into_app_user('foreach', 492874, 'foreach@mail.ru');
+SELECT insert_into_app_user('feedback', 1355, 'feedback@gmail.com');
+SELECT insert_into_app_user('disk', 11111, 'disk@mail.ru');
+SELECT insert_into_app_user('sobaka', 5433546, 'sobaka@mail.ru');
+SELECT insert_into_app_user('dog', 10887776, 'doggy@mail.ru');
+SELECT insert_into_app_user('duck_night', 655599, 'duck@mail.ru');
+SELECT insert_into_app_user('sleep_tonight', 1566977, 'sleeeeeeep@mail.ru');
+SELECT insert_into_app_user('tomorrow_gun', 1146879087, 'guntom@mail.ru');
+SELECT insert_into_app_user('pictures', 2457886, 'pictures@mail.ru');
 
 --subscribes
-INSERT INTO subscribes VALUES ('paprika', 1);
-INSERT INTO subscribes VALUES ('paprika', 3);
-INSERT INTO subscribes VALUES ('paprika', 4);
-INSERT INTO subscribes VALUES ('foreach', 1);
-INSERT INTO subscribes VALUES ('disk', 2);
-INSERT INTO subscribes VALUES ('sobaka', 5);
-INSERT INTO subscribes VALUES ('dog', 2);
-INSERT INTO subscribes VALUES ('sleep_tonight', 3);
-INSERT INTO subscribes VALUES ('pictures', 2);
-INSERT INTO subscribes VALUES ('pictures', 4);
+SELECT insert_into_subscribes('paprika', 1);
+SELECT insert_into_subscribes('paprika', 3);
+SELECT insert_into_subscribes('paprika', 4);
+SELECT insert_into_subscribes('foreach', 1);
+SELECT insert_into_subscribes('disk', 2);
+SELECT insert_into_subscribes('sobaka', 5);
+SELECT insert_into_subscribes('dog', 2);
+SELECT insert_into_subscribes('sleep_tonight', 3);
+SELECT insert_into_subscribes('pictures', 2);
+SELECT insert_into_subscribes('pictures', 4);
 
 --reviews
-INSERT INTO reviews VALUES ('paprika', 2, 'not good', 'I thought this serial would be better. Something is going wrong.', '2016-03-05');
-INSERT INTO reviews VALUES ('paprika', 1, 'the best one', 'I really like it.', '2016-11-01');
-INSERT INTO reviews VALUES ('sobaka', 1, 'could be better', 'My sister recommends, but not me.', '2016-10-15');
+SELECT insert_into_reviews('paprika', 2, 'not good', 'I thought this serial would be better. Something is going wrong.', '2016-03-05');
+SELECT insert_into_reviews('paprika', 1, 'the best one', 'I really like it.', '2016-11-01');
+SELECT insert_into_reviews('sobaka', 1, 'could be better', 'My sister recommends, but not me.', '2016-10-15');
 
 --comments
-INSERT INTO comments (comment_date, text, app_user_login, season_number, serial_id) VALUES
-  ('2016-02-02', 'Where is Michael? He is pretty good.', 'paprika', 1, 1);
-INSERT INTO comments (comment_date, text, app_user_login, season_number, serial_id) VALUES
-  ('2016-02-03', 'He has broken his leg.', 'foreach', 1, 1);
-INSERT INTO comments (comment_date, text, app_user_login, season_number, serial_id) VALUES
-  ('2016-02-04', 'Oh, I can not believe it!', 'paprika', 1, 1);
+SELECT insert_into_comments('2016-02-02', 'Where is Michael? He is pretty good.', 'paprika', 1, 1);
+SELECT insert_into_comments('2016-02-03', 'He has broken his leg.', 'foreach', 1, 1);
+SELECT insert_into_comments('2016-02-04', 'Oh, I can not believe it!', 'paprika', 1, 1);

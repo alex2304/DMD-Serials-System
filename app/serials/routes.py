@@ -7,7 +7,8 @@ from . import serials
 
 @serials.route('/')
 def index():
-    return render_template('serials.html')
+    serials_info = SerialsRepository.get_all_serials()
+    return render_template('serials.html', serials_info=serials_info)
 
 
 @serials.route('serials/')

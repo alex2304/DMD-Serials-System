@@ -1,3 +1,7 @@
+DROP FUNCTION insert_into_episode(character, date, integer, integer, integer, integer, integer);
+
+DROP FUNCTION insert_into_season(integer, integer);
+
 DROP TABLE serial CASCADE;
 
 DROP TABLE genre CASCADE;

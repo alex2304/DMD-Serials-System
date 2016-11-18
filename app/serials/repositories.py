@@ -51,9 +51,15 @@ class SerialsRepository:
         return cls._get_serials_with_counts(all_serials_query)
 
     @classmethod
-    def get_filtered_serials(cls, start_year: int, end_year: int, countries_list: List[str]) -> List[Serial]:
+    def get_filtered_serials(cls, title_part: str, start_year: int, end_year: int, start_rating: int, end_rating: int,
+                             countries_list: List[str], actors_list: List[str], genres_list: List[str]) -> List[Serial]:
         """
         Get serials filtered by given params
+        :param title_part:
+        :param end_rating:
+        :param start_rating:
+        :param actors_list:
+        :param genres_list:
         :param start_year: start year of the serials
         :param end_year: end year of the serials
         :param countries_list: list of the countries from wich serials needed
@@ -62,15 +68,19 @@ class SerialsRepository:
         serials_columns_string = qh.get_columns_string(SerialsMapping)
 
         all_serials_query = qe.execute(db,
-                                       "SELECT {serials_columns} FROM {serials_table}"
-                                       "WHERE country in ({countries}) AND release_year > {start_year}"
-                                       "AND release_year < {end_year};",
+                                       "SELECT {serials_columns} "
+                                       "FROM get_filtered_serials('{title_part}', {start_year}, "
+                                       "{end_year}, {start_rating}, {end_rating}, {countries}, {actors}, {genres})",
                                        *[Serial],
                                        **{'serials_columns': serials_columns_string,
-                                          'serials_table': SerialsMapping.description,
-                                          'countries': ','.join(countries_list),
+                                          'title_part': title_part,
                                           'start_year': start_year,
-                                          'end_year': end_year})
+                                          'end_year': end_year,
+                                          'start_rating': start_rating,
+                                          'end_rating': end_rating,
+                                          'countries': qh.get_range_string(countries_list),
+                                          'actors': qh.get_range_string(actors_list),
+                                          'genres': qh.get_range_string(genres_list)})
 
         return cls._get_serials_with_counts(all_serials_query)
 
@@ -102,8 +112,6 @@ class SerialsRepository:
         serials = cls.get_all_serials()
         countries_list = map(lambda s: s.country, serials)
         return list(set(countries_list))
-
-
 
     @classmethod
     def get_serial_seasons(cls, serial_id: int) -> List[Season]:

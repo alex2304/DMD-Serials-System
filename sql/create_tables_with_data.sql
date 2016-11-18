@@ -1,8 +1,11 @@
 CREATE TABLE serial (
   serial_id SERIAL PRIMARY KEY,
   title CHAR(100) NOT NULL,
-  release_date DATE NOT NULL,
-  country CHAR(50) NOT NULL
+  release_year INTEGER NOT NULL,
+  country CHAR(50) NOT NULL,
+
+  CONSTRAINT year_must_be_less_or_equal_than_now_and_grater_1948
+  CHECK (release_year >= 1949 AND release_year <= extract(YEAR FROM current_date))
 );
 
 CREATE TABLE genre (
@@ -52,7 +55,8 @@ CREATE TABLE season (
   serial_id INTEGER NOT NULL,
 
   PRIMARY KEY (season_number, serial_id),
-  FOREIGN KEY (serial_id) REFERENCES serial(serial_id) ON DELETE CASCADE ON UPDATE CASCADE
+  FOREIGN KEY (serial_id) REFERENCES serial(serial_id) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT season_number_must_be_grater_than_0 CHECK (season_number > 0)
 );
 
 CREATE TABLE comments (
@@ -78,7 +82,8 @@ CREATE TABLE episode (
 
   PRIMARY KEY (episode_number, season_number, serial_id),
   FOREIGN KEY (season_number, serial_id) REFERENCES season (season_number, serial_id) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT positive_rating CHECK (rating > 0 AND rating < 11)
+  CONSTRAINT positive_rating CHECK (rating > 0 AND rating < 11),
+  CONSTRAINT episode_number_must_be_grater_than_0 CHECK (episode_number > 0)
 );
 
 CREATE TABLE person (
@@ -197,46 +202,122 @@ CREATE TABLE serial_has_award (
   FOREIGN KEY (serial_id) REFERENCES serial (serial_id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-CREATE OR REPLACE FUNCTION check_data_release() RETURNS TRIGGER AS $check_data_release$
+CREATE OR REPLACE FUNCTION insert_into_episode(title char(20), release_date DATE, duration INTEGER,
+  rating INTEGER, episode_number INTEGER, season_number INTEGER, serial_id INTEGER) RETURNS VOID AS $$
   BEGIN
-    IF (NEW.release_date < (SELECT s.release_date
+    -- check release_year of serial
+    IF (extract(YEAR FROM release_date) < (SELECT s.release_year
                            FROM serial s
-                           WHERE (NEW.serial_id = s.serial_id)))
+                           WHERE ($7 = s.serial_id)))
     THEN
-    RAISE EXCEPTION 'serial release_date must be smaller than episode release_date';
+      RAISE EXCEPTION 'serial release_date must be smaller than episode release_date';
     END IF;
-    RETURN NEW;
-  END;
-$check_data_release$ LANGUAGE plpgsql;
+    -- if the first episode of serial just insert
+    IF (episode_number = 1 AND season_number = 1)
+      THEN
+        INSERT INTO episode VALUES ($1, $2, $3, $4, $5, $6, $7);
+    -- if the first episode os season check previous release_date
+    ELSEIF (episode_number = 1)
+      THEN
+        IF (release_date >= (SELECT e.release_date
+                          FROM episode e NATURAL JOIN (SELECT max(e1.episode_number) AS max, e1.serial_id, e1.season_number
+                                                       FROM episode e1
+                                                       GROUP BY e1.serial_id, e1.season_number) temp
+                          WHERE e.season_number = $6 - 1 AND e.serial_id = $7 AND e.episode_number = temp.max))
+          THEN
+            INSERT INTO episode VALUES ($1, $2, $3, $4, $5, $6, $7);
+        ELSE
+          RAISE EXCEPTION 'release_date must be larger or equal release_date of last episode in previous season';
+        END IF;
+    -- check previous release_date
+    ELSE
+      -- if there is no episodes in this season - raise an exception
+      IF (NOT EXISTS(SELECT *
+                     FROM episode e
+                     WHERE e.season_number = 1 AND $7 = e.serial_id))
+        THEN
+          RAISE EXCEPTION 'there is no first episode';
+      END IF;
+      -- if there is an episode in the NEXT season - raise an exception
+      IF (EXISTS(SELECT *
+                 FROM episode e
+                 WHERE $6 < e.season_number AND $7 = e.serial_id))
+        THEN
+          RAISE EXCEPTION 'you can not add this episode in this season because there is the next season';
+      END IF;
+      -- check whether episodes go one by one
+      IF (episode_number - 1 != (SELECT e.episode_number
+                          FROM episode e NATURAL JOIN (SELECT max(e1.episode_number) AS max, e1.serial_id, e1.season_number
+                                                       FROM episode e1
+                                                       GROUP BY e1.serial_id, e1.season_number) temp
+                          WHERE e.season_number = $6 AND e.serial_id = $7 AND e.episode_number = temp.max))
+        THEN
+          RAISE EXCEPTION 'episodes must go one by one';
+      END IF;
+      IF (release_date >= (SELECT e.release_date
+                          FROM episode e NATURAL JOIN (SELECT max(e1.episode_number) AS max, e1.serial_id, e1.season_number
+                                                       FROM episode e1
+                                                       GROUP BY e1.serial_id, e1.season_number) temp
+                          WHERE e.season_number = $6 AND e.serial_id = $7 AND e.episode_number = temp.max))
+        THEN
+          INSERT INTO episode VALUES ($1, $2, $3, $4, $5, $6, $7);
+      ELSE
+        RAISE EXCEPTION 'release_date must be larger or equal release_date of last episode in this season';
+      END IF;
+    END IF;
+    END;
+$$ LANGUAGE plpgsql;
 
---DROP TRIGGER check_episode_data_release on episode;
-CREATE TRIGGER check_episode_data_release
-  BEFORE INSERT OR UPDATE ON episode
-  FOR EACH ROW EXECUTE PROCEDURE check_data_release();
+CREATE OR REPLACE FUNCTION insert_into_season(season_number INTEGER, serial_id INTEGER) RETURNS VOID AS $$
+  BEGIN
+    IF (season_number = 1)
+      THEN
+        INSERT INTO season VALUES ($1, $2);
+
+    -- check whether the first exists
+    ELSEIF (NOT EXISTS(SELECT *
+                       FROM season s
+                       WHERE s.season_number = 1 AND $2 = s.serial_id))
+      THEN
+        RAISE EXCEPTION 'there is no first season';
+
+    -- seasons must go one by one
+    ELSEIF (season_number - 1 != (SELECT s.season_number
+                                  FROM season s NATURAL JOIN (SELECT max(s1.season_number) AS max, s1.serial_id
+                                                              FROM season s1
+                                                              GROUP BY s1.serial_id) temp
+                                  WHERE s.season_number = max AND $2 = s.serial_id))
+      THEN
+        RAISE EXCEPTION 'season numbers must go one by one';
+    ELSE
+      INSERT INTO season VALUES ($1, $2);
+    END IF;
+  END;
+$$ LANGUAGE plpgsql;
 
 --serials
-INSERT INTO serial (title, release_date, country) VALUES ('University comedy', '2001-03-01', 'Russia');
-INSERT INTO serial (title, release_date, country) VALUES ('Campus horror', '2010-02-15', 'Russia');
-INSERT INTO serial (title, release_date, country) VALUES ('I have a dream', '2011-11-11', 'Russia');
-INSERT INTO serial (title, release_date, country) VALUES ('Money honey', '2012-12-12', 'Russia');
-INSERT INTO serial (title, release_date, country) VALUES ('Everyday shuttling', '2015-03-21', 'Russia');
+INSERT INTO serial (title, release_year, country) VALUES ('University comedy', 2001, 'Russia');
+INSERT INTO serial (title, release_year, country) VALUES ('Campus horror', 2010, 'Russia');
+INSERT INTO serial (title, release_year, country) VALUES ('I have a dream', 2011, 'Russia');
+INSERT INTO serial (title, release_year, country) VALUES ('Money honey', 2012, 'Russia');
+INSERT INTO serial (title, release_year, country) VALUES ('Everyday shuttling', 2015, 'Russia');
 --seasons
-INSERT INTO season VALUES (1, 1);
-INSERT INTO season VALUES (2, 1);
-INSERT INTO season VALUES (1, 2);
-INSERT INTO season VALUES (1, 3);
-INSERT INTO season VALUES (1, 4);
-INSERT INTO season VALUES (1, 5);
+SELECT insert_into_season(1, 1);
+SELECT insert_into_season(2, 1);
+SELECT insert_into_season(1, 2);
+SELECT insert_into_season(1, 3);
+SELECT insert_into_season(1, 4);
+SELECT insert_into_season(1, 5);
 --episodes
-INSERT INTO episode VALUES ('Epic start', '2001-03-02', 24, 7, 1, 1, 1);
-INSERT INTO episode VALUES ('Fuel ends', '2001-03-02', 35, 2, 2, 1, 1);
-INSERT INTO episode VALUES ('Not a journey!', '2001-03-02', 24, 8, 1, 2, 1);
-INSERT INTO episode VALUES ('Do not cry', '2001-03-02', 24, 10, 2, 2, 1);
-INSERT INTO episode VALUES ('Rubbish', '2014-04-20', 24, 7, 1, 1, 2);
-INSERT INTO episode VALUES ('Best prisoner', '2010-03-02', 24, 3, 2, 1, 2);
-INSERT INTO episode VALUES ('Foolish guy', '2013-03-02', 24, 6, 1, 1, 3);
-INSERT INTO episode VALUES ('Cave disease', '2015-11-30', 24, 2, 1, 1, 4);
-INSERT INTO episode VALUES ('Light in tunnel', '2016-11-02', 24, 9, 1, 1, 5);
+SELECT insert_into_episode('Epic start', '2001-03-02', 24, 7, 1, 1, 1);
+SELECT insert_into_episode('Fuel ends', '2001-03-02', 35, 2, 2, 1, 1);
+SELECT insert_into_episode('Not a journey!', '2001-03-02', 24, 8, 1, 2, 1);
+SELECT insert_into_episode('Do not cry', '2001-03-02', 24, 10, 2, 2, 1);
+SELECT insert_into_episode('Rubbish', '2014-04-20', 24, 7, 1, 1, 2);
+SELECT insert_into_episode('Best prisoner', '2014-04-22', 24, 3, 2, 1, 2);
+SELECT insert_into_episode('Foolish guy', '2013-03-02', 24, 6, 1, 1, 3);
+SELECT insert_into_episode('Cave disease', '2015-11-30', 24, 2, 1, 1, 4);
+SELECT insert_into_episode('Light in tunnel', '2016-11-02', 24, 9, 1, 1, 5);
 
 --persons
 INSERT INTO person (name, birthdade, genger) VALUES ('Brutus Ullson', '1983-09-09', 'm');

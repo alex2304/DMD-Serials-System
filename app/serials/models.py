@@ -14,11 +14,23 @@ class Serial:
         Model represents Serials table
     """
 
+    def get_value_by_field_name(self, field_name):
+        if field_name == 'serial_id':
+            return self.serial_id
+        elif field_name == 'title':
+            return self.title
+        elif field_name == 'release_year':
+            return self.release_year
+        elif field_name == 'country':
+            return self.country
+        else:
+            return None
+
     def __init__(self):
         super().__init__()
         self.serial_id = None
         self.title = None
-        self.release_date = None
+        self.release_year = None
         self.country = None
 
         self.seasons_count = None
@@ -64,7 +76,7 @@ metadata = MetaData()
 SerialsMapping = Table('serial', metadata,
                        Column('serial_id', Integer, primary_key=True),
                        Column('title', String(100), nullable=False),
-                       Column('release_date', Date, nullable=False),
+                       Column('release_year', Integer, nullable=False),
                        Column('country', String(50), nullable=False)
                        )
 SeasonsMapping = Table('season', metadata,

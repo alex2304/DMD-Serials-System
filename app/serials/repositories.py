@@ -21,91 +21,132 @@ class SerialsRepository:
         serials_with_counts = []
 
         for serial in serials:
-            serial.seasons_count = cls.get_serial_seasons_count(serial.serial_id)
-            serial.episodes_count = cls.get_serial_episodes_count(serial.serial_id)
+            serial.seasons_count = len(cls.get_serial_seasons(serial.serial_id))
+            serial.episodes_count = len(cls.get_serial_episodes(serial.serial_id))
             serials_with_counts.append(serial)
 
         return serials
 
     @classmethod
-    def get_all_serials(cls) -> List[Serial]:
+    def get_all_serials(cls, order_by_field=None) -> List[Serial]:
         """
         :return: all serials from table Serials
         """
         serials_columns_string = qh.get_columns_string(SerialsMapping)
 
-        all_serials_query = qe.execute(db,
-                                       "SELECT {serials_columns} FROM {serials_table}",
-                                       *[Serial],
-                                       **{'serials_columns': serials_columns_string,
-                                          'serials_table': SerialsMapping.description})
+        if order_by_field is None:
+            all_serials_query = qe.execute(db,
+                                           "SELECT {serials_columns} FROM {serials_table}",
+                                           *[Serial],
+                                           **{'serials_columns': serials_columns_string,
+                                              'serials_table': SerialsMapping.description})
+        else:
+            all_serials_query = qe.execute(db,
+                                           "SELECT {serials_columns} FROM {serials_table} ORDER BY {order_by_field}",
+                                           *[Serial],
+                                           **{'serials_columns': serials_columns_string,
+                                              'serials_table': SerialsMapping.description,
+                                              'order_by_field': order_by_field})
 
         return cls._get_serials_with_counts(all_serials_query)
 
     @classmethod
-    def get_serial_by_id(cls, serial_id: int) -> Serial:
+    def get_filtered_serials(cls, start_year: int, end_year: int, countries_list: List[str]) -> List[Serial]:
         """
-        Get info about the serial with id == serial_id
-        :param serial_id: id of the serial (should be a whole number)
-        :return: Info about the serial with serial_id, or None, if the serial doesn't exist
+        Get serials filtered by given params
+        :param start_year: start year of the serials
+        :param end_year: end year of the serials
+        :param countries_list: list of the countries from wich serials needed
+        :return: list of serials
         """
-        serial_id = int(serial_id)
         serials_columns_string = qh.get_columns_string(SerialsMapping)
 
-        serial_query = qe.execute(db,
-                                  "SELECT {serials_columns} FROM {serials_table} WHERE serial_id = {serial_id}",
-                                  *[Serial],
-                                  **{'serials_columns': serials_columns_string,
-                                     'serials_table': SerialsMapping.description,
-                                     'serial_id': serial_id})
+        all_serials_query = qe.execute(db,
+                                       "SELECT {serials_columns} FROM {serials_table}"
+                                       "WHERE country in ({countries}) AND release_year > {start_year}"
+                                       "AND release_year < {end_year};",
+                                       *[Serial],
+                                       **{'serials_columns': serials_columns_string,
+                                          'serials_table': SerialsMapping.description,
+                                          'countries': ','.join(countries_list),
+                                          'start_year': start_year,
+                                          'end_year': end_year})
 
-        return serial_query[0]
+        return cls._get_serials_with_counts(all_serials_query)
 
     @classmethod
-    def get_serial_episodes_count(cls, serial_id: int) -> int:
+    def get_serial_episodes(cls, serial_id: int) -> List[Episode]:
         """
-        Get count of the episodes for the serial with serial_id
+        Get episodes for the serial with serial_id
         :param serial_id: id of the serial (should be a whole number)
-        :return: number of the episodes of the serial
+        :return: episodes of the serial
         """
         serial_id = int(serial_id)
         episodes_columns_string = qh.get_columns_string(EpisodesMapping, 'episode')
         serials_episodes = qe.execute(db,
-                                    "SELECT {episodes_columns} "
-                                    " FROM {episodes_table} AS episode INNER JOIN "
-                                    " (SELECT season.season_number, season.serial_id FROM {seasons_table} AS season "
-                                    " LEFT JOIN {serials_table} as serial ON season.serial_id = serial.serial_id "
-                                    " WHERE serial.serial_id = {serial_id}) AS s "
-                                    " ON episode.season_number = s.season_number",
-                                    *[Episode],
-                                    **{'episodes_columns': episodes_columns_string,
-                                       'episodes_table': EpisodesMapping.description,
-                                       'seasons_table': SeasonsMapping.description,
-                                       'serials_table': SerialsMapping.description,
-                                       'serial_id': serial_id})
+                                        "SELECT {episodes_columns} "
+                                        " FROM {episodes_table} WHERE serial_id = {serial_id}",
+                                        *[Episode],
+                                        **{'episodes_columns': episodes_columns_string,
+                                           'episodes_table': EpisodesMapping.description,
+                                           'serial_id': serial_id})
 
-        return len(serials_episodes)
+        return serials_episodes
 
     @classmethod
-    def get_serial_seasons_count(cls, serial_id: int) -> int:
+    def get_all_countries_list(cls) -> List[str]:
         """
-        Get count of the seasons for the serial with serial_id
+        Return list of all countries from which serials exists
+        :return: list of countries
+        """
+        serials = cls.get_all_serials()
+        countries_list = map(lambda s: s.country, serials)
+        return list(set(countries_list))
+
+
+
+    @classmethod
+    def get_serial_seasons(cls, serial_id: int) -> List[Season]:
+        """
+        Get seasons for the serial with serial_id
         :param serial_id: id of the serial (should be a whole number)
-        :return: number of the seasons of the serial
+        :return: seasons of the serial
         """
         serial_id = int(serial_id)
-        serials_columns_string = qh.get_columns_string(SerialsMapping, 'serial')
         seasons_columns_string = qh.get_columns_string(SeasonsMapping, 'season')
-        serials_seasons = qe.execute(db,
-                                   "SELECT {serials_columns}, {seasons_columns}"
-                                   " FROM {seasons_table} AS season INNER JOIN "
-                                   " {serials_table} as serial ON season.serial_id = serial.serial_id "
-                                   " WHERE serial.serial_id = {serial_id}",
-                                   *[Serial, Season],
-                                   **{'serials_columns': serials_columns_string,
-                                      'seasons_columns': seasons_columns_string,
-                                      'seasons_table': SeasonsMapping.description,
-                                      'serials_table': SerialsMapping.description,
-                                      'serial_id': serial_id})
 
-        return len(serials_seasons)
+        # connection = psycopg2.connect('postgresql://postgres:postgres@localhost/SerialsSystem')
+        #
+        # query_str = "SELECT {seasons_columns} FROM {seasons_table}"\
+        #     .format(seasons_columns=seasons_columns_string,
+        #                             seasons_table=SeasonsMapping.description)
+        # connection.cursor().execute(query_str)
+        #
+        # temp_result = connection.cursor().fetchall()
+        # connection.commit()
+        # connection.close()
+
+        serials_seasons = qe.execute(db,
+                                     "SELECT {seasons_columns}"
+                                     " FROM {seasons_table} WHERE serial_id = {serial_id}",
+                                     *[Season],
+                                     **{'seasons_columns': seasons_columns_string,
+                                        'seasons_table': SeasonsMapping.description,
+                                        'serial_id': serial_id})
+
+        return serials_seasons
+
+    @classmethod
+    def get_serial_by_id(cls, serial_id):
+        serial_id = int(serial_id)
+        serials_columns_string = qh.get_columns_string(SerialsMapping, 'serial')
+        serial_with_id = qe.execute(db,
+                                     "SELECT {serials_columns}"
+                                     " FROM {serials_table} WHERE serial_id = {serial_id}",
+                                     *[Serial],
+                                     **{'serials_columns': serials_columns_string,
+                                        'serials_table': SerialsMapping.description,
+                                        'serial_id': serial_id})
+        if len(serial_with_id) > 0:
+            return serial_with_id[0]
+        return None

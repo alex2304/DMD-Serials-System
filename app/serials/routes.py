@@ -20,13 +20,14 @@ def serials(serial_id=None):
     :return: renders template 'serials.html' with all serials, or template 'serial_info.html' for serial with serial_id
     """
     if serial_id is not None:
+        episodes_of_serial = SerialsRepository.get_serial_episodes(serial_id)
         serial_info = SerialsRepository.get_serial_by_id(serial_id)
-        if serial_info:
-            return render_template('serial_info.html', serial_info=serial_info)
+        if episodes_of_serial:
+            return render_template('serial_info.html', serial_info=serial_info, episodes_info=episodes_of_serial)
         else:
             abort(404)
 
-    serials_info = SerialsRepository.get_all_serials()
+    serials_info = SerialsRepository.get_all_serials('title')
     return render_template('serials.html', serials_info=serials_info)
 
 

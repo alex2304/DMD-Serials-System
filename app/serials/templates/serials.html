@@ -2,10 +2,15 @@
 
 {% block extra_css %}
     <link href="{{ url_for('static', filename='jqcloud/jqcloud.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='DataTables/datatables.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='bootstrap-slider/bootstrap-slider.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='serials.css') }}" rel="stylesheet">
 {% endblock %}
-
 {% block extra_js %}
     <script src="{{ url_for('static', filename='jqcloud/jqcloud.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='DataTables/datatables.js') }}"></script>
+    <script src="{{ url_for('static', filename='bootstrap-slider/bootstrap-slider.js') }}"></script>
+
     <script type="text/javascript">
         var basic_words = [
             {text: "Action", weight: 13},
@@ -63,6 +68,32 @@
             $('#genres').jQCloud(linked_words);
         });
     </script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#serials').DataTable({
+                "paging": false,
+                "searching": false,
+                "info": false,
+            });
+        });
+
+    </script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            var yearSlider = $("#inputYear").slider({
+                "range": true,
+                "min": 1900,
+                "max": 2016,
+            });
+
+            var ratingSlider = $("#inputRating").slider({
+                "range": true,
+                "min": 5.0,
+                "max": 10.0,
+            });
+        });
+
+    </script>
 {% endblock %}
 
 {% block header %}
@@ -77,9 +108,10 @@
                 <li><a href="">Actors</a></li>
                 <li><a href="">Writers</a></li>
                 <li><a href="">Directors</a></li>
+                <li><a href="">Statistic</a></li>
+                <li><a href="">Login</a></li>
             </ul>
         </div><!--/.nav-collapse -->
-        </div>
     </nav>
 {% endblock %}
 
@@ -89,23 +121,44 @@
 
         <div id="genres"></div>
 
-        <form class="form-horizontal">
+        <form class="form-horizontal" action="{{ url_for('serials.serials') }}">
 
             <div class="form-group">
                 <div class="row">
-                    <div class="col-sm-4">
+                    <div class="col-sm-6">
                         <label for="inputTitle" class="control-label">Title</label>
-                        <input type="text" class="form-control" id="inputTitle" placeholder="Black Mirror">
+                        <input type="text" class="form-control" name="inputTitle" id="inputTitle" placeholder="Black Mirror">
                     </div>
-                    <div class="col-sm-4">
-                        <label for="inputRating" class="control-label">Rating ≥</label>
-                        <input type="text" class="form-control" id="inputRating" placeholder="7">
-                    </div>
-                    <div class="col-sm-4">
-                        <label for="inputYear" class="control-label">Year</label>
-                        <input type="text" class="form-control" id="inputYear" placeholder="2015">
+
+                    <div class="col-sm-6">
+                        <label for="inputCountry" class="control-label">Countries (comma separated)</label>
+                        <input type="text" class="form-control" name="inputCountry" id="inputCountry" placeholder="Russia">
                     </div>
                 </div>
+
+
+                <div class="row">
+                    <div class="col-sm-6">
+                        <label for="inputYear" class="control-label">Year</label>
+                        <input name="inputYear" id="inputYear" type="text" class="form-control"/>
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="" class="control-label">Actors (comma separated)</label>
+                        <input name="inputActor" id="inputActor" type="text" class="form-control"/>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-6">
+                        <label for="inputRating" class="control-label">Rating</label>
+                        <input name="inputRating" id="inputRating" type="text" class="form-control"/>
+                    </div>
+                    <div class="col-sm-6">
+                        <label for="inputGenre" class="control-label">Genres (comma separated)</label>
+                        <input name="inputGenre" id="inputGenre" type="text" class="form-control"/>
+                    </div>
+                </div>
+
             </div>
 
 
@@ -117,10 +170,9 @@
         </form>
 
 
-
         <div class="row">
             <div class="col-md-12">
-                <table class="table table-striped">
+                <table id="serials" class="table table-striped table-bordered">
                     <thead>
                     <tr>
                         <th>#</th>
@@ -129,17 +181,21 @@
                         <th>Year</th>
                         <th>Seasons</th>
                         <th>Episodes</th>
+                        <th>Marked</th>
                     </tr>
                     </thead>
                     <tbody>
                     {% for serial_index in range(0, serials_info|length) %}
                         <tr>
                             <td>{{ serial_index + 1 }}</td>
-                            <td><a href="/serials/{{ serials_info[serial_index].serial_id }}">{{ serials_info[serial_index].title }}</a></td>
+                            <td>
+                                <a href="/serials/{{ serials_info[serial_index].serial_id }}">{{ serials_info[serial_index].title }}</a>
+                            </td>
                             <td>{{ serials_info[serial_index].country }}</td>
                             <td>{{ serials_info[serial_index].release_year }}</td>
                             <td>{{ serials_info[serial_index].seasons_count }}</td>
                             <td>{{ serials_info[serial_index].episodes_count }}</td>
+                            <td><span class="glyphicon glyphicon-star" aria-hidden="true"></span></td>
                         </tr>
                     {% endfor %}
                     </tbody>

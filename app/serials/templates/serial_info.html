@@ -58,10 +58,10 @@
                     </tr>
                     </thead>
                     <tbody>
-                    {% for season_index in range(1, 11) %}
+                    {% for season_index in range(0, serial_info.seasons|length) %}
                         <tr>
-                            <td><a href="/seasons/{{ season_index }}">{{ season_index }}</a></td>
-                            <td>serial_info.seasons[season_index].year</td>
+                            <td><a href="/seasons/{{ serial_info.seasons[season_index].season_number }}">{{ season_index + 1}}</a></td>
+                            <td>{{ serial_info.seasons[season_index].release_date }}</td>
                         </tr>
                     {% endfor %}
                     </tbody>

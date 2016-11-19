@@ -12,20 +12,24 @@ class SerialsRepository:
     """
 
     @classmethod
-    def _get_serials_with_counts(cls, serials: List[Serial]) -> List[Serial]:
+    def _get_extended_serials(cls, serials: List[Serial]) -> List[Serial]:
         """
         Adding count of the seasons and episodes in each serial from list
         :param serials: list of the serials
         :return: new list of the serials, where every serial has episodes count and seasons count
         """
-        serials_with_counts = []
+        extended_serials = []
 
         for serial in serials:
-            serial.seasons_count = len(cls.get_serial_seasons(serial.serial_id))
-            serial.episodes_count = len(cls.get_serial_episodes(serial.serial_id))
-            serials_with_counts.append(serial)
+            serial.seasons = cls.get_serial_seasons(serial.serial_id)
+            serial.seasons_count = len(serial.seasons)
 
-        return serials
+            serial.episodes = cls.get_serial_episodes(serial.serial_id)
+            serial.episodes_count = len(serial.episodes)
+
+            extended_serials.append(serial)
+
+        return extended_serials
 
     @classmethod
     def get_all_serials(cls, order_by_field=None) -> List[Serial]:
@@ -48,7 +52,7 @@ class SerialsRepository:
                                               'serials_table': SerialsMapping.description,
                                               'order_by_field': order_by_field})
 
-        return cls._get_serials_with_counts(all_serials_query)
+        return cls._get_extended_serials(all_serials_query)
 
     @classmethod
     def get_filtered_serials(cls, title_part: str, start_year: int, end_year: int, start_rating: int, end_rating: int,
@@ -82,7 +86,7 @@ class SerialsRepository:
                                           'actors': qh.get_sql_array(actors_list),
                                           'genres': qh.get_sql_array(genres_list)})
 
-        return cls._get_serials_with_counts(all_serials_query)
+        return cls._get_extended_serials(all_serials_query)
 
     @classmethod
     def get_serial_episodes(cls, serial_id: int) -> List[Episode]:
@@ -121,31 +125,20 @@ class SerialsRepository:
         :return: seasons of the serial
         """
         serial_id = int(serial_id)
-        seasons_columns_string = qh.get_columns_string(SeasonsMapping, 'season')
-
-        # connection = psycopg2.connect('postgresql://postgres:postgres@localhost/SerialsSystem')
-        #
-        # query_str = "SELECT {seasons_columns} FROM {seasons_table}"\
-        #     .format(seasons_columns=seasons_columns_string,
-        #                             seasons_table=SeasonsMapping.description)
-        # connection.cursor().execute(query_str)
-        #
-        # temp_result = connection.cursor().fetchall()
-        # connection.commit()
-        # connection.close()
+        seasons_columns_string = qh.get_columns_string(SeasonsMapping)
 
         serials_seasons = qe.execute(db,
                                      "SELECT {seasons_columns}"
-                                     " FROM {seasons_table} WHERE serial_id = {serial_id}",
+                                     " FROM get_seasons_of_serial({serial_id})",
                                      *[Season],
                                      **{'seasons_columns': seasons_columns_string,
-                                        'seasons_table': SeasonsMapping.description,
                                         'serial_id': serial_id})
 
         return serials_seasons
 
     @classmethod
     def get_serial_by_id(cls, serial_id):
+
         serial_id = int(serial_id)
         serials_columns_string = qh.get_columns_string(SerialsMapping, 'serial')
         serial_with_id = qe.execute(db,
@@ -156,5 +149,5 @@ class SerialsRepository:
                                         'serials_table': SerialsMapping.description,
                                         'serial_id': serial_id})
         if len(serial_with_id) > 0:
-            return serial_with_id[0]
+            return cls._get_extended_serials(serial_with_id)[0]
         return None

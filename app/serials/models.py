@@ -35,6 +35,8 @@ class Serial:
 
         self.seasons_count = None
         self.episodes_count = None
+        self.episodes = None
+        self.seasons = None
 
     def __str__(self):
         return "Serial # %s (%s)" % (self.serial_id, self.title)
@@ -49,6 +51,7 @@ class Season:
         super.__init__()
         self.season_number = None
         self.serial_id = None
+        self.release_date = None
 
 
 class Episode:
@@ -82,6 +85,7 @@ SerialsMapping = Table('serial', metadata,
 SeasonsMapping = Table('season', metadata,
                        Column('season_number', Integer, nullable=False),
                        Column('serial_id', Integer, primary_key=True),
+                       Column('release_date', Date),
                        ForeignKeyConstraint(['serial_id'], ['serial.serial_id'], ondelete='CASCADE', onupdate='CASCADE')
                        )
 EpisodesMapping = Table('episode', metadata,

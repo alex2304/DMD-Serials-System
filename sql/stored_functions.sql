@@ -1,8 +1,29 @@
-
+DROP FUNCTION get_season_date(INTEGER, INTEGER);
 drop FUNCTION get_serial_rating(INTEGER);
 drop FUNCTION get_genres_of_serial(INTEGER);
 drop FUNCTION get_actors_of_serial(INTEGER);
 DROP FUNCTION get_filtered_serials(CHAR, integer, integer, NUMERIC,NUMERIC, CHAR[],CHAR[],CHAR[]);
+DROP FUNCTION get_seasons_of_serial(INTEGER);
+
+
+CREATE OR REPLACE FUNCTION get_season_date(_serial_id INTEGER, _season_number INTEGER)
+  RETURNS DATE AS
+  $BODY$
+    SELECT MIN(e.release_date) FROM
+      episode e INNER JOIN season s ON s.serial_id = e.serial_id AND s.season_number = e.season_number
+    WHERE e.season_number = _season_number AND e.serial_id = _serial_id;
+  $BODY$
+  LANGUAGE sql;
+
+CREATE OR REPLACE FUNCTION get_seasons_of_serial(_serial_id INTEGER)
+  RETURNS TABLE(season_number INTEGER, serial_id INTEGER, release_date DATE) AS
+  $BODY$
+    SELECT s.season_number, _serial_id, get_season_date(_serial_id, s.season_number) release_date FROM
+      episode e INNER JOIN season s ON s.serial_id = e.serial_id AND s.season_number = e.season_number
+    WHERE e.serial_id = _serial_id
+    GROUP BY s.season_number;
+  $BODY$
+  LANGUAGE sql;
 
 CREATE OR REPLACE FUNCTION get_serial_rating(_serial_id INTEGER) RETURNS
   NUMERIC AS

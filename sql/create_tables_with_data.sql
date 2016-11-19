@@ -206,8 +206,6 @@ CREATE TABLE serial_has_award (
 
 CREATE OR REPLACE FUNCTION insert_into_episode(title CHAR(20), release_date DATE, duration INTEGER,
   rating INTEGER, episode_number INTEGER, season_number INTEGER, serial_id INTEGER) RETURNS VOID AS $$
-CREATE OR REPLACE FUNCTION insert_into_episode(title char(20), release_date DATE, duration INTEGER,
-  rating INTEGER, episode_number INTEGER, season_number INTEGER, serial_id INTEGER) RETURNS VOID AS $$
   BEGIN
     -- check release_year of serial
     IF (extract(YEAR FROM release_date) < (SELECT s.release_year

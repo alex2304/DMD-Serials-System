@@ -217,7 +217,7 @@ CREATE OR REPLACE FUNCTION insert_into_episode(title CHAR(20), release_date DATE
     -- if the first episode of serial just insert
     IF (episode_number = 1 AND season_number = 1)
       THEN
-        INSERT INTO episode VALUES ($1, $2, $3, $4, $5, $6, $7);
+        SELECT insert_into_episode($1, $2, $3, $4, $5, $6, $7);
     -- if the first episode os season check previous release_date
     ELSEIF (episode_number = 1)
       THEN
@@ -227,7 +227,7 @@ CREATE OR REPLACE FUNCTION insert_into_episode(title CHAR(20), release_date DATE
                                                        GROUP BY e1.serial_id, e1.season_number) temp
                           WHERE e.season_number = $6 - 1 AND e.serial_id = $7 AND e.episode_number = temp.max))
           THEN
-            INSERT INTO episode VALUES ($1, $2, $3, $4, $5, $6, $7);
+            SELECT insert_into_episode($1, $2, $3, $4, $5, $6, $7);
         ELSE
           RAISE EXCEPTION 'release_date must be larger or equal release_date of last episode in previous season';
         END IF;
@@ -262,7 +262,7 @@ CREATE OR REPLACE FUNCTION insert_into_episode(title CHAR(20), release_date DATE
                                                        GROUP BY e1.serial_id, e1.season_number) temp
                           WHERE e.season_number = $6 AND e.serial_id = $7 AND e.episode_number = temp.max))
         THEN
-          INSERT INTO episode VALUES ($1, $2, $3, $4, $5, $6, $7);
+          SELECT insert_into_episode($1, $2, $3, $4, $5, $6, $7);
       ELSE
         RAISE EXCEPTION 'release_date must be larger or equal release_date of last episode in this season';
       END IF;
@@ -274,7 +274,7 @@ CREATE OR REPLACE FUNCTION insert_into_season(season_number INTEGER, serial_id I
   BEGIN
     IF (season_number = 1)
       THEN
-        INSERT INTO season VALUES ($1, $2);
+        SELECT insert_into_season($1, $2);
 
     -- check whether the first exists
     ELSEIF (NOT EXISTS(SELECT *
@@ -292,7 +292,7 @@ CREATE OR REPLACE FUNCTION insert_into_season(season_number INTEGER, serial_id I
       THEN
         RAISE EXCEPTION 'season numbers must go one by one';
     ELSE
-      INSERT INTO season VALUES ($1, $2);
+      SELECT insert_into_season($1, $2);
     END IF;
   END;
 $$ LANGUAGE plpgsql;
@@ -542,7 +542,7 @@ CREATE OR REPLACE FUNCTION insert_into_season(season_number INTEGER, serial_id I
   BEGIN
     IF (season_number = 1)
       THEN
-        INSERT INTO season VALUES ($1, $2);
+        SELECT insert_into_season($1, $2);
 
     -- check whether the first exists
     ELSEIF (NOT EXISTS(SELECT *
@@ -560,7 +560,7 @@ CREATE OR REPLACE FUNCTION insert_into_season(season_number INTEGER, serial_id I
       THEN
         RAISE EXCEPTION 'season numbers must go one by one';
     ELSE
-      INSERT INTO season VALUES ($1, $2);
+      SELECT insert_into_season($1, $2);
     END IF;
   END;
 $$ LANGUAGE plpgsql;
@@ -572,22 +572,22 @@ SELECT insert_into_serial('I have a dream', 2011, 'Russia');
 SELECT insert_into_serial('Everyday shuttling', 2015, 'Russia');
 SELECT insert_into_serial('The Dutch', 2016, 'USA');
 --seasons
-INSERT INTO season VALUES (1, 1);
-INSERT INTO season VALUES (2, 1);
-INSERT INTO season VALUES (1, 2);
-INSERT INTO season VALUES (1, 3);
-INSERT INTO season VALUES (1, 4);
-INSERT INTO season VALUES (1, 5);
+SELECT insert_into_season(1, 1);
+SELECT insert_into_season(2, 1);
+SELECT insert_into_season(1, 2);
+SELECT insert_into_season(1, 3);
+SELECT insert_into_season(1, 4);
+SELECT insert_into_season(1, 5);
 --episodes
-INSERT INTO episode VALUES ('Epic start', '2001-03-02', 24, 7, 1, 1, 1);
-INSERT INTO episode VALUES ('Fuel ends', '2001-03-02', 35, 2, 2, 1, 1);
-INSERT INTO episode VALUES ('Not a journey!', '2001-03-02', 24, 8, 1, 2, 1);
-INSERT INTO episode VALUES ('Do not cry', '2001-03-02', 24, 10, 2, 2, 1);
-INSERT INTO episode VALUES ('Rubbish', '2014-04-20', 24, 7, 1, 1, 2);
-INSERT INTO episode VALUES ('Best prisoner', '2010-03-02', 24, 3, 2, 1, 2);
-INSERT INTO episode VALUES ('Foolish guy', '2013-03-02', 24, 6, 1, 1, 3);
-INSERT INTO episode VALUES ('Cave disease', '2015-11-30', 24, 2, 1, 1, 4);
-INSERT INTO episode VALUES ('Light in tunnel', '2016-11-02', 24, 9, 1, 1, 5);
+SELECT insert_into_episode('Epic start', '2001-03-02', 24, 7, 1, 1, 1);
+SELECT insert_into_episode('Fuel ends', '2001-03-02', 35, 2, 2, 1, 1);
+SELECT insert_into_episode('Not a journey!', '2001-03-02', 24, 8, 1, 2, 1);
+SELECT insert_into_episode('Do not cry', '2001-03-02', 24, 10, 2, 2, 1);
+SELECT insert_into_episode('Rubbish', '2014-04-20', 24, 7, 1, 1, 2);
+SELECT insert_into_episode('Best prisoner', '2010-03-02', 24, 3, 2, 1, 2);
+SELECT insert_into_episode('Foolish guy', '2013-03-02', 24, 6, 1, 1, 3);
+SELECT insert_into_episode('Cave disease', '2015-11-30', 24, 2, 1, 1, 4);
+SELECT insert_into_episode('Light in tunnel', '2016-11-02', 24, 9, 1, 1, 5);
 
 --persons
 SELECT insert_into_person('Brutus Ullson', '1983-09-09', 'm');

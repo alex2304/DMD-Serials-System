@@ -70,3 +70,4 @@ CREATE OR REPLACE FUNCTION get_filtered_serials(title_part CHAR, start_year INTE
 
   $BODY$
   LANGUAGE sql;
+

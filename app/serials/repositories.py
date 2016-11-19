@@ -78,9 +78,9 @@ class SerialsRepository:
                                           'end_year': end_year,
                                           'start_rating': start_rating,
                                           'end_rating': end_rating,
-                                          'countries': qh.get_range_string(countries_list),
-                                          'actors': qh.get_range_string(actors_list),
-                                          'genres': qh.get_range_string(genres_list)})
+                                          'countries': qh.get_sql_array(countries_list),
+                                          'actors': qh.get_sql_array(actors_list),
+                                          'genres': qh.get_sql_array(genres_list)})
 
         return cls._get_serials_with_counts(all_serials_query)
 

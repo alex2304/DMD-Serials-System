@@ -32,7 +32,7 @@ def index():
 
 @serials.route('serials/')
 @serials.route('serials/<int:serial_id>')
-def serials(serial_id=None):
+def process_serials(serial_id=None):
     """
     Routes to the page with info about serial(s)
     :param serial_id: id of the serial which info it needs to show
@@ -49,6 +49,17 @@ def serials(serial_id=None):
     serials_info = SerialsRepository.get_all_serials('title')
     return render_template('serials.html', serials_info=serials_info)
 
+
+@serials.route('seasons/<int:season_id>')
+def process_seasons(season_id=None):
+    season_info = []
+    return render_template('seasons.html', season_info=season_info)
+
+
+@serials.route('episodes/<int:episodes_id>')
+def process_episodes(episodes_id=None):
+    episodes_info = []
+    return render_template('episodes.html', season_info=episodes_info)
 
 # @main.route('episodes/<int:episode_id>')
 # def episodes(episode_id=None):

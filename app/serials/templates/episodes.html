@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+    <link href="{{ url_for('static', filename='serials_info.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block header %}
+    <!-- Static navbar -->
+    <nav class="navbar navbar-default navbar-static-top">
+        <div class="container">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">Project name</a>
+            </div>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a class="active" href="/serials">Serials</a></li>
+                <li><a href="">Actors</a></li>
+                <li><a href="">Writers</a></li>
+                <li><a href="">Directors</a></li>
+                <li><a href="">Statistic</a></li>
+            </ul>
+        </div><!--/.nav-collapse -->
+    </nav>
+{% endblock %}
+
+{% block content %}
+
+    <div class="container">
+
+        <div class="row">
+            <div class="col-md-3">
+                <img class="img-responsive" src="{{ url_for('static', filename='images/360x512.png') }}" alt="">
+            </div>
+            <div class="col-md-9">
+                <h3 class="text-center">{{ "episode_info.title" }}</h3>
+                <div><span>Directors: {{ "episode_info.directors" }}</span></div>
+                <div><span>Writers: {{ "episode_info.writers" }}</span></div>
+                <div><span>Date: episode_info.date</span></div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table table-striped">
+                    <caption class="text-left">Casts</caption>
+                    <thead>
+                    <tr>
+                        <th>Actor</th>
+                        <th>Role</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for actor in range(1, 11) %}
+                        <tr>
+                            <td><a href="/actors/{{ "1" }}">{{ "actor_name" }}</a></td>
+                            <td>Role</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+
+    </div>
+
+{% endblock %}

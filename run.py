@@ -13,9 +13,15 @@ def drop_create_db(_app):
 
     connection = connect_db()
     with _app.open_resource('../sql/drop_tables.sql', mode='r') as f:
+        # try:
         connection.cursor().execute(f.read())
+        # except:
+        #     pass
     with _app.open_resource('../sql/create_tables_with_data.sql', mode='r') as f:
+        # try:
         connection.cursor().execute(f.read())
+        # except:
+        #     pass
     connection.commit()
     print(' * Database has been successfully recreated')
     connection.close()

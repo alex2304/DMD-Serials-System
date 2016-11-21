@@ -539,6 +539,27 @@ CREATE OR REPLACE FUNCTION insert_into_reviews(app_user_login CHAR(20), serial_i
   END;
 $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION insert_into_comments(text CHAR(1000), app_user_login CHAR(20),
+  season_number INTEGER, serial_id INTEGER) RETURNS VOID AS $$
+  BEGIN
+        INSERT INTO comments (comment_date, text, app_user_login, season_number, serial_id) VALUES (now(), $1, $2, $3, $4);
+  END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION insert_into_reviews(app_user_login CHAR(20), serial_id INTEGER, title CHAR(50),
+  text CHAR(10000)) RETURNS VOID AS $$
+  BEGIN
+    IF (extract(YEAR FROM $5) < (SELECT s.release_year
+                FROM serial s
+                WHERE s.serial_id = $2))
+      THEN
+        RAISE EXCEPTION 'review can not be published before serial have been released';
+      ELSE
+        INSERT INTO reviews VALUES ($1, $2, $3, $4, now());
+      END IF;
+  END;
+$$ LANGUAGE plpgsql;
+
 
 --serials
 SELECT insert_into_serial('University comedy', 2001, 'Russia');

@@ -14,18 +14,6 @@ class Serial:
         Model represents Serials table
     """
 
-    def get_value_by_field_name(self, field_name):
-        if field_name == 'serial_id':
-            return self.serial_id
-        elif field_name == 'title':
-            return self.title
-        elif field_name == 'release_year':
-            return self.release_year
-        elif field_name == 'country':
-            return self.country
-        else:
-            return None
-
     def __init__(self):
         super().__init__()
         self.serial_id = None
@@ -37,6 +25,10 @@ class Serial:
         self.episodes_count = None
         self.episodes = None
         self.seasons = None
+        self.actors_names = None
+        self.genres_titles = None
+        self.awards = None
+        self.creators_names = None
 
     def __str__(self):
         return "Serial # %s (%s)" % (self.serial_id, self.title)
@@ -47,11 +39,17 @@ class Season:
         Model represents Seasons table
     """
 
-    def __init__(self):
-        super.__init__()
-        self.season_number = None
-        self.serial_id = None
-        self.release_date = None
+    def __init__(self, season_number=None, serial_id=None, release_date=None):
+        self.season_number = season_number
+        self.serial_id = serial_id
+
+        self.release_date = release_date
+
+        self.episodes = None
+        self.seasons_count = None
+        self.actors_names = None
+        self.rating = None
+        self.duration = None
 
 
 class Episode:
@@ -73,6 +71,18 @@ class Episode:
         return "Episode # %s (%s)" % (self.episode_number, self.title)
 
 
+class SerialAward(object):
+    """
+        Model represents SerialAwards table
+    """
+
+    def __init__(self, serial_id, award_title, award_year):
+        super.__init__()
+        self.serial_id = None
+        self.award_title = None
+        self.award_year = None
+
+
 metadata = MetaData()
 
 # Create mappings
@@ -82,10 +92,17 @@ SerialsMapping = Table('serial', metadata,
                        Column('release_year', Integer, nullable=False),
                        Column('country', String(50), nullable=False)
                        )
+AwardsMapping = Table('serial_has_award', metadata,
+                       Column('serial_id', Integer),
+                       Column('award_title', String(100), nullable=False),
+                       Column('year', Integer, nullable=False),
+                       # PrimaryKeyConstraint(['serial_id', 'award_title']),
+                       ForeignKeyConstraint(['serial_id'], ['serial.serial_id'], ondelete='CASCADE', onupdate='CASCADE'),
+                       ForeignKeyConstraint(['award_title'], ['serial_award.award_title'], ondelete='CASCADE', onupdate='CASCADE')
+                       )
 SeasonsMapping = Table('season', metadata,
                        Column('season_number', Integer, nullable=False),
                        Column('serial_id', Integer, primary_key=True),
-                       Column('release_date', Date),
                        ForeignKeyConstraint(['serial_id'], ['serial.serial_id'], ondelete='CASCADE', onupdate='CASCADE')
                        )
 EpisodesMapping = Table('episode', metadata,

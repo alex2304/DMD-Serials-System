@@ -9,7 +9,7 @@
     <nav class="navbar navbar-default navbar-static-top">
         <div class="container">
             <div class="navbar-header">
-                <a class="navbar-brand" href="#">Project name</a>
+                <a class="navbar-brand" href="/">Project name</a>
             </div>
             <ul class="nav navbar-nav navbar-right">
                 <li><a class="active" href="/serials">Serials</a></li>
@@ -34,9 +34,11 @@
                 <h3 class="text-center">{{ serial_info.title }}</h3>
                 <div><span>Country: {{ serial_info.country }}</span></div>
                 <div><span>Year: {{ serial_info.release_year }}</span></div>
-                <div><span>Creators: serial_info.creators</span></div>
-                <div><span>Actors: serial_info.actors</span></div>
-                <div><span>Awards: serial_info.awards</span></div>
+                <div><span>Creators: {{ ", ".join(serial_info.creators_names) }}</span></div>
+                <div><span>Actors: {{ ", ".join(serial_info.actors_names) }}</span></div>
+                <div><span>Genres: {{ ", ".join(serial_info.genres_titles) }}</span></div>
+                <div><span>Awards: {{ ", ".join(serial_awards_list) }}</span></div>
+
                 <div>Description:</div>
                 <div>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore
                     et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
@@ -60,7 +62,7 @@
                     <tbody>
                     {% for season_index in range(0, serial_info.seasons|length) %}
                         <tr>
-                            <td><a href="/seasons/{{ serial_info.seasons[season_index].season_number }}">{{ season_index + 1}}</a></td>
+                            <td><a href="{{ url_for('serials.process_serials', serial_id=serial_info.serial_id, season_number=serial_info.seasons[season_index].season_number) }}">{{ season_index + 1}}</a></td>
                             <td>{{ serial_info.seasons[season_index].release_date }}</td>
                         </tr>
                     {% endfor %}

@@ -2,7 +2,7 @@ from flask import abort
 from flask import render_template
 from flask import request
 
-from app.serials.repositories import SerialsRepository
+from app.serials.repositories import SerialsRepository, SeasonsRepository
 from . import serials
 
 
@@ -32,34 +32,62 @@ def index():
 
 @serials.route('serials/')
 @serials.route('serials/<int:serial_id>')
-def process_serials(serial_id=None):
+@serials.route('serials/<int:serial_id>/<int:season_number>')
+@serials.route('serials/<int:serial_id>/<int:season_number>/<int:episode_number>')
+def process_serials(serial_id=None, season_number=None, episode_number=None):
     """
     Routes to the page with info about serial(s)
     :param serial_id: id of the serial which info it needs to show
-    :return: renders template 'serials.html' with all serials, or template 'serial_info.html' for serial with serial_id
+    :param season_number: number of the serial's season
+    :param episode_number: number of the season's episode
+    :return: renders serial page
     """
     if serial_id is not None:
-        episodes_of_serial = SerialsRepository.get_serial_episodes(serial_id)
-        serial_info = SerialsRepository.get_serial_by_id(serial_id)
-        if episodes_of_serial:
-            return render_template('serial_info.html', serial_info=serial_info, episodes_info=episodes_of_serial)
+        if season_number is not None:
+            if episode_number is not None:
+                return process_episode(serial_id, season_number, episode_number)
+            else:
+                return process_season(serial_id, season_number)
         else:
-            abort(404)
+            return process_serial(serial_id)
 
-    serials_info = SerialsRepository.get_all_serials('title')
+    serials_info = SerialsRepository.get_all_serials(order_by_field='title')
     return render_template('serials.html', serials_info=serials_info)
 
 
-@serials.route('seasons/<int:season_id>')
-def process_seasons(season_id=None):
-    season_info = []
-    return render_template('seasons.html', season_info=season_info)
+def process_serial(serial_id):
+
+    episodes_of_serial = SerialsRepository.get_serial_episodes(serial_id)
+    serial_info = SerialsRepository.get_serial_by_id(serial_id)
+    if episodes_of_serial:
+        serial_awards_list = list(map(lambda a: "%s(%s)" % (a.award_title, str(a.award_year)), serial_info.awards))
+        return render_template('serial_info.html', serial_info=serial_info, episodes_info=episodes_of_serial,
+                               serial_awards=serial_awards_list)
+    else:
+        abort(404)
 
 
-@serials.route('episodes/<int:episodes_id>')
-def process_episodes(episodes_id=None):
-    episodes_info = []
-    return render_template('episodes.html', season_info=episodes_info)
+def process_season(serial_id, season_number):
+
+    serial_info = SerialsRepository.get_serial_by_id(serial_id, extended=False)
+    season_info = SeasonsRepository.get_season_by_number(serial_id, season_number)
+    if season_info:
+        return render_template('seasons.html', serial_info=serial_info, season_info=season_info)
+    else:
+        abort(404)
+
+
+def process_episode(serial_id, season_number, episode_number):
+
+    episodes_of_serial = SerialsRepository.get_serial_episodes(serial_id)
+    serial_info = SerialsRepository.get_serial_by_id(serial_id)
+    if episodes_of_serial:
+        serial_awards_list = list(map(lambda a: "%s(%s)" % (a.award_title, str(a.award_year)), serial_info.awards))
+        return render_template('episodes.html', serial_info=serial_info, episodes_info=episodes_of_serial,
+                               serial_awards=serial_awards_list)
+    else:
+        abort(404)
+
 
 # @main.route('episodes/<int:episode_id>')
 # def episodes(episode_id=None):

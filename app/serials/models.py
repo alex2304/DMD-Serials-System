@@ -67,6 +67,10 @@ class Episode:
         self.season_number = None
         self.serial_id = None
 
+        self.directors_names = None
+        self.writers_names = None
+        self.played = None
+
     def __str__(self):
         return "Episode # %s (%s)" % (self.episode_number, self.title)
 
@@ -83,6 +87,23 @@ class SerialAward(object):
         self.award_year = None
 
 
+class Played:
+    """
+        Model represents Played table
+    """
+
+    def __init__(self, serial_id=None, season_number=None, episode_number=None, actor_name=None, role_title=None,
+                 award_title=None, award_year=None):
+        super.__init__()
+        self.serial_id = serial_id
+        self.season_number = season_number
+        self.episode_number = episode_number
+        self.award_year = award_year
+        self.award_title = award_title
+        self.role_title = role_title
+        self.actor_name = actor_name
+
+
 metadata = MetaData()
 
 # Create mappings
@@ -93,13 +114,14 @@ SerialsMapping = Table('serial', metadata,
                        Column('country', String(50), nullable=False)
                        )
 AwardsMapping = Table('serial_has_award', metadata,
-                       Column('serial_id', Integer),
-                       Column('award_title', String(100), nullable=False),
-                       Column('year', Integer, nullable=False),
-                       # PrimaryKeyConstraint(['serial_id', 'award_title']),
-                       ForeignKeyConstraint(['serial_id'], ['serial.serial_id'], ondelete='CASCADE', onupdate='CASCADE'),
-                       ForeignKeyConstraint(['award_title'], ['serial_award.award_title'], ondelete='CASCADE', onupdate='CASCADE')
-                       )
+                      Column('serial_id', Integer),
+                      Column('award_title', String(100), nullable=False),
+                      Column('year', Integer, nullable=False),
+                      # PrimaryKeyConstraint(['serial_id', 'award_title']),
+                      ForeignKeyConstraint(['serial_id'], ['serial.serial_id'], ondelete='CASCADE', onupdate='CASCADE'),
+                      ForeignKeyConstraint(['award_title'], ['serial_award.award_title'], ondelete='CASCADE',
+                                           onupdate='CASCADE')
+                      )
 SeasonsMapping = Table('season', metadata,
                        Column('season_number', Integer, nullable=False),
                        Column('serial_id', Integer, primary_key=True),
@@ -115,7 +137,8 @@ EpisodesMapping = Table('episode', metadata,
                         Column('season_number', Integer, primary_key=True),
                         Column('serial_id', Integer, primary_key=True),
 
-                        ForeignKeyConstraint(['season_number', 'serial_id'], ['season.season_number', 'season.serial_id'],
+                        ForeignKeyConstraint(['season_number', 'serial_id'],
+                                             ['season.season_number', 'season.serial_id'],
                                              ondelete='CASCADE', onupdate='CASCADE')
                         )
 

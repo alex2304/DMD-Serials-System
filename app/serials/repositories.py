@@ -1,7 +1,8 @@
 from typing import List
 
 from app import db, db_engine
-from app.serials.models import SerialsMapping, Serial, Episode, EpisodesMapping, SeasonsMapping, Season, SerialAward
+from app.serials.models import SerialsMapping, Serial, Episode, EpisodesMapping, SeasonsMapping, Season, SerialAward, \
+    Played
 from app.utils.query_executor import QueryExecutor as qe
 from app.utils.query_helper import QueryHelper as qh
 
@@ -301,5 +302,80 @@ class SeasonsRepository:
         if len(season_duration) > 0:
             return season_duration[0]['get_duration_of']
         return None
+
+
+class EpisodesRepository:
+
+    @classmethod
+    def _get_extended_episodes(cls, episodes):
+        extended_episodes = []
+
+        for e in episodes:
+            e.directors_names = cls.get_episode_directors_names(e.serial_id, e.season_number, e.episode_number)
+            e.writers_names = cls.get_episode_writers_names(e.serial_id, e.season_number, e.episode_number)
+            e.played = cls.get_episode_played(e.serial_id, e.season_number, e.episode_number)
+
+            extended_episodes.append(e)
+
+        return extended_episodes
+
+    @classmethod
+    def get_episode_by_number(cls, serial_id, season_number, episode_number):
+
+        episodes_columns_string = qh.get_columns_string(EpisodesMapping, 'episode')
+        episode_result = qe.execute_mapped(db,
+                                           "SELECT {columns}"
+                                           " FROM {table} WHERE serial_id = {serial_id}"
+                                           " AND season_number = {season_number}"
+                                           " AND episode_number = {episode_number}",
+                                           *[Episode],
+                                           **{'columns': episodes_columns_string,
+                                              'table': EpisodesMapping.description,
+                                              'serial_id': serial_id,
+                                              'season_number': season_number,
+                                              'episode_number': episode_number
+                                              })
+        if len(episode_result) > 0:
+            return cls._get_extended_episodes(episode_result)[0]
+        return None
+
+    @classmethod
+    def get_episode_directors_names(cls, serial_id, season_number, episode_number):
+
+        episode_directors = qe.execute_arbitrary(db_engine,
+                                             "SELECT *"
+                                             " FROM get_episode_directors_names({serial_id}, {season_number}, {episode_number})",
+                                             **{'serial_id': serial_id,
+                                                'season_number': season_number,
+                                                'episode_number': episode_number})
+
+        return [str(row['director_name']).rstrip() for row in episode_directors]
+
+    @classmethod
+    def get_episode_writers_names(cls, serial_id, season_number, episode_number):
+
+        episode_writers = qe.execute_arbitrary(db_engine,
+                                             "SELECT *"
+                                             " FROM get_episode_writers_names({serial_id}, {season_number}, {episode_number})",
+                                             **{'serial_id': serial_id,
+                                                'season_number': season_number,
+                                                'episode_number': episode_number})
+
+        return [str(row['writer_name']).rstrip() for row in episode_writers]
+
+    @classmethod
+    def get_episode_played(cls, serial_id, season_number, episode_number):
+
+        episode_played = qe.execute_arbitrary(db_engine,
+                                             "SELECT *"
+                                             " FROM get_episode_played({serial_id}, {season_number}, {episode_number})",
+                                             **{'serial_id': serial_id,
+                                                'season_number': season_number,
+                                                'episode_number': episode_number})
+
+        return [Played(serial_id, season_number, episode_number,
+                       str(row['actor_name']).rstrip(), str(row['role_title']).rstrip(),
+                       str(row['award_title']).rstrip(), row['award_year'])
+                for row in episode_played]
 
 

@@ -31,10 +31,11 @@
                 <img class="img-responsive" src="{{ url_for('static', filename='images/360x512.png') }}" alt="">
             </div>
             <div class="col-md-9">
-                <h3 class="text-center">{{ "episode_info.title" }}</h3>
-                <div><span>Directors: {{ "episode_info.directors" }}</span></div>
-                <div><span>Writers: {{ "episode_info.writers" }}</span></div>
-                <div><span>Date: episode_info.date</span></div>
+                <h3 class="text-center">{{ episode_info.title }}</h3>
+                <div><span>Directors: {{ ", ".join(episode_info.directors_names) }}</span></div>
+                <div><span>Writers: {{ ", ".join(episode_info.writers_names) }}</span></div>
+                <div><span>Date: {{  episode_info.release_date }}</span></div>
+                <div><span>Duration: {{  episode_info.duration }}</span></div>
             </div>
         </div>
 
@@ -46,13 +47,21 @@
                     <tr>
                         <th>Actor</th>
                         <th>Role</th>
+                        <th>Awards</th>
                     </tr>
                     </thead>
                     <tbody>
-                    {% for actor in range(1, 11) %}
+                    {% for p in episode_info.played %}
                         <tr>
-                            <td><a href="/actors/{{ "1" }}">{{ "actor_name" }}</a></td>
-                            <td>Role</td>
+                            <td><a href="/actors/{{ "1" }}">{{ p.actor_name }}</a></td>
+                            <td>{{ p.role_title }}</td>
+                            {% if p.award_title and p.award_year %}
+                                <td>{{ p.award_title }}</td>
+                                <td>{{ p.award_year }}</td>
+                            {% else %}
+                                <td>-</td>
+                                <td>-</td>
+                            {% endif %}
                         </tr>
                     {% endfor %}
                     </tbody>

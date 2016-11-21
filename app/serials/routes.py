@@ -2,7 +2,7 @@ from flask import abort
 from flask import render_template
 from flask import request
 
-from app.serials.repositories import SerialsRepository, SeasonsRepository
+from app.serials.repositories import SerialsRepository, SeasonsRepository, EpisodesRepository
 from . import serials
 
 
@@ -79,12 +79,9 @@ def process_season(serial_id, season_number):
 
 def process_episode(serial_id, season_number, episode_number):
 
-    episodes_of_serial = SerialsRepository.get_serial_episodes(serial_id)
-    serial_info = SerialsRepository.get_serial_by_id(serial_id)
-    if episodes_of_serial:
-        serial_awards_list = list(map(lambda a: "%s(%s)" % (a.award_title, str(a.award_year)), serial_info.awards))
-        return render_template('episodes.html', serial_info=serial_info, episodes_info=episodes_of_serial,
-                               serial_awards=serial_awards_list)
+    episode_info = EpisodesRepository.get_episode_by_number(serial_id, season_number, episode_number)
+    if episode_info:
+        return render_template('episodes.html', episode_info=episode_info)
     else:
         abort(404)
 

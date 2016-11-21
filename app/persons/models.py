@@ -9,7 +9,7 @@ from sqlalchemy import Table
 from sqlalchemy.orm import mapper
 
 
-class Creator:
+class Director:
     """
         Model represents Episodes table
     """

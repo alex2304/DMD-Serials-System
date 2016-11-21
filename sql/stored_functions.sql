@@ -6,7 +6,12 @@ drop FUNCTION get_actors_names_of(INTEGER);
 drop FUNCTION get_actors_names_of(INTEGER, INTEGER);
 DROP FUNCTION get_filtered_serials(CHAR, integer, integer, NUMERIC,NUMERIC, CHAR[],CHAR[],CHAR[]);
 DROP FUNCTION get_seasons_of_serial(INTEGER);
-
+DROP FUNCTION get_serial_awards(INTEGER);
+DROP FUNCTION get_creators_of_serial_names(INTEGER);
+DROP FUNCTION get_duration_of(INTEGER, INTEGER);
+DROP FUNCTION get_episode_directors_names(INTEGER, INTEGER, INTEGER);
+DROP FUNCTION get_episode_writers_names(INTEGER, INTEGER, INTEGER);
+DROP FUNCTION get_episode_played(INTEGER, INTEGER, INTEGER);
 
 CREATE OR REPLACE FUNCTION get_season_date(_serial_id INTEGER, _season_number INTEGER)
   RETURNS DATE AS
@@ -96,3 +101,64 @@ CREATE OR REPLACE FUNCTION get_filtered_serials(title_part CHAR, start_year INTE
   $BODY$
   LANGUAGE sql;
 
+CREATE OR REPLACE FUNCTION get_serial_awards(_serial_id INTEGER)
+ RETURNS TABLE(award_title CHAR, award_year INTEGER) AS
+ $BODY$
+    SELECT sha.award_title, sha.year
+    FROM serial s NATURAL JOIN serial_has_award sha
+    WHERE s.serial_id = $1;
+ $BODY$
+ LANGUAGE sql;
+
+CREATE OR REPLACE FUNCTION get_creators_of_serial_names(_serial_id INTEGER)
+ RETURNS TABLE(creator_name CHAR) AS
+ $BODY$
+    SELECT p.name
+    FROM serial s NATURAL JOIN creates NATURAL JOIN creator c JOIN person p ON c.creator_id = p.person_id
+    WHERE s.serial_id = $1;
+ $BODY$
+ LANGUAGE sql;
+
+
+CREATE OR REPLACE FUNCTION get_duration_of(_serial_id INTEGER, _season_number INTEGER) RETURNS
+ BIGINT AS
+ $BODY$
+    SELECT sum(e.duration)
+    FROM season s NATURAL JOIN episode e
+    WHERE s.serial_id = $1 AND s.season_number = $2;
+ $BODY$
+ LANGUAGE sql;
+
+
+CREATE OR REPLACE FUNCTION get_episode_directors_names(_serial_id INTEGER, _season_number INTEGER, _episode_number INTEGER) RETURNS
+ TABLE(director_name CHAR) AS
+ $BODY$
+    SELECT p.name
+    FROM episode e NATURAL JOIN directs NATURAL JOIN director d JOIN person p ON p.person_id = d.director_id
+    WHERE e.serial_id = $1 AND e.season_number = $2 AND e.episode_number = $3;
+ $BODY$
+ LANGUAGE sql;
+
+
+CREATE OR REPLACE FUNCTION get_episode_writers_names(_serial_id INTEGER, _season_number INTEGER, _episode_number INTEGER) RETURNS
+ TABLE(writer_name CHAR) AS
+ $BODY$
+    SELECT p.name
+    FROM episode e NATURAL JOIN writes NATURAL JOIN writer w JOIN person p ON p.person_id = w.writer_id
+    WHERE e.serial_id = $1 AND e.season_number = $2 AND e.episode_number = $3;
+ $BODY$
+ LANGUAGE sql;
+
+CREATE OR REPLACE FUNCTION get_episode_played(_serial_id INTEGER, _season_number INTEGER, _episode_number INTEGER) RETURNS
+ TABLE(actor_name CHAR, role_title CHAR, award_title CHAR, award_year INTEGER) AS
+ $BODY$
+   -- если награды за игру актёра в данной роли не было - поля award_title и award_year равны NULL
+   SELECT temp.actor_name, temp.role_title, rha.award_title, rha.year
+   FROM episode e NATURAL JOIN films NATURAL JOIN plays
+     NATURAL JOIN (SELECT r.title role_title, p.name actor_name, pl.played_id played_id
+                   FROM plays pl NATURAL JOIN role r NATURAL JOIN actor a JOIN person p ON a.actor_id = p.person_id) temp
+     LEFT JOIN role_has_award rha ON temp.played_id = rha.played_id
+                                     AND rha.serial_id = $1 AND rha.season_number = $2 AND rha.episode_number = $3
+   WHERE e.serial_id = $1 AND e.season_number = $2 AND e.episode_number = $3;
+ $BODY$
+ LANGUAGE sql;

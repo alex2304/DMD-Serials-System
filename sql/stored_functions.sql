@@ -192,7 +192,7 @@ LANGUAGE sql;
 
 -- Count of serials in each genre
 CREATE OR REPLACE FUNCTION get_serials_in_genres_counts() RETURNS
-TABLE(genre_title CHAR,  serials_count INTEGER) AS
+TABLE(genre_title CHAR,  serials_count BIGINT) AS
   $BODY$
     SELECT g.genre_title, COUNT(*)
     FROM genre g NATURAL JOIN serial_has_genre shg

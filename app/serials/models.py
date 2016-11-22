@@ -29,6 +29,7 @@ class Serial:
         self.genres_titles = None
         self.awards = None
         self.creators_names = None
+        self.played = None
 
     def __str__(self):
         return "Serial # %s (%s)" % (self.serial_id, self.title)

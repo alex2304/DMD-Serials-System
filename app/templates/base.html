@@ -9,22 +9,47 @@
     <link href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
     <!-- Bootstrap theme -->
     <link href="{{ url_for('static', filename='bootstrap/css/bootstrap-theme.min.css') }}" rel="stylesheet">
+    <!-- Base css -->
+    <link href="{{ url_for('static', filename='base.css') }}" rel="stylesheet">
     <!-- VK OpenAPI -->
-{#    <script src="https://vk.com/js/api/openapi.js?136" type="text/javascript"></script>#}
+    {#    <script src="https://vk.com/js/api/openapi.js?136" type="text/javascript"></script>#}
 
     {% block extra_css %}{% endblock %}
 
 </head>
 <body>
-    {% block header %}{% endblock %}
+{% block header %}
+    <!-- Static navbar -->
+    <nav class="navbar navbar-default navbar-static-top">
+        <div class="container">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">Project name</a>
+            </div>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="/serials">Serials</a></li>
+                <li><a href="">Actors</a></li>
+                <li><a href="">Writers</a></li>
+                <li><a href="">Directors</a></li>
+                <li><a href="/statistic">Statistic</a></li>
+                <li><a href="">Login</a></li>
+            </ul>
+        </div><!--/.nav-collapse -->
+    </nav>
+{% endblock %}
 
-    {% block content %}{% endblock %}
+{% block content %}{% endblock %}
 
-    {% block footer %}{% endblock %}
+{% block footer %}
+    <footer class="footer">
+      <div class="container">
+        <p class="text-muted">Amazing footer!</p>
+      </div>
+    </footer>
+{% endblock %}
 
-    <script src="{{ url_for('static', filename='js/jquery-3.1.1.min.js') }}"></script>
-    <script src="{{ url_for('static', filename='bootstrap/js/bootstrap.min.js') }}"></script>
-    {% block extra_js %}{% endblock %}
+<script src="{{ url_for('static', filename='js/jquery-3.1.1.min.js') }}"></script>
+<script src="{{ url_for('static', filename='bootstrap/js/bootstrap.min.js') }}"></script>
+{% block extra_js %}{% endblock %}
 {##}
 {#    <script type="text/javascript">#}
 {#      VK.init({#}

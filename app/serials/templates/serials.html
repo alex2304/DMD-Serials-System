@@ -18,15 +18,15 @@
             {% endfor %}
         ];
 
-        var linked_words = $.extend(true, [], basic_words);
-        linked_words.splice(0, 3,
-                {text: "Action", weight: 13, link: 'http://github.com/mistic100/jQCloud'},
-                {text: "Comedy", weight: 10.5, link: 'http://www.strangeplanet.fr'},
-                {text: "Fantasy", weight: 9.4, link: 'http://piwigo.org'}
-        );
+{#        var linked_words = $.extend(true, [], basic_words);#}
+{#        linked_words.splice(0, 3,#}
+{#                {text: "Action", weight: 13, link: 'http://github.com/mistic100/jQCloud'},#}
+{#                {text: "Comedy", weight: 10.5, link: 'http://www.strangeplanet.fr'},#}
+{#                {text: "Fantasy", weight: 9.4, link: 'http://piwigo.org'}#}
+{#        );#}
 
         $(function () {
-            $('#genres').jQCloud(linked_words);
+            $('#genres').jQCloud(basic_words);
         });
     </script>
     <script type="text/javascript">

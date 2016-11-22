@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+    <link href="{{ url_for('static', filename='jqcloud/jqcloud.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='DataTables/datatables.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='bootstrap-slider/bootstrap-slider.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='statistics.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block extra_js %}
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#topForGenreBtn').on('click', function (e) {
+                var tbl = $("#topForGenreTbl").find('tbody');
+                tbl.parent().removeClass("hidden");
+                tbl.empty();
+                $.get("/statistics/top_for_genre", {genre: $('#inputGenre').val()})
+                        .done(function (data) {
+                            data = [1, 2, 3, 4, 5]
+                            $.each(data, function (index, element) {
+                                tbl.append('<tr><td>' + (index + 1) + '</td><td>' + element + '</td></tr>')
+                            });
+                        });
+                e.preventDefault();
+            });
+        });
+
+        $(document).ready(function () {
+            $('#topForActorBtn').on('click', function (e) {
+                var tbl = $("#topForActorTbl").find('tbody');
+                tbl.parent().removeClass("hidden");
+                tbl.empty();
+                $.get("/statistics/top_for_actor", {actor: $('#inputActor').val()})
+                        .done(function (data) {
+                            data = [1, 2, 3, 4, 5]
+                            $.each(data, function (index, element) {
+                                tbl.append('<tr><td>' + (index + 1) + '</td><td>' + element + '</td></tr>')
+                            });
+                        });
+                e.preventDefault();
+            });
+        });
+    </script>
+
+{% endblock %}
+
+{% block content %}
+
+    <div class="container">
+        <table class="table table-condensed">
+            <caption>Top-5 the best/worst creators by rating of their serials</caption>
+            <thead>
+            <th>Place</th>
+            <th>The best</th>
+            <th>The worst</th>
+            </thead>
+            <tbody>
+            {% for i in range(1, 6) %}
+                <tr>
+                    <td>{{ i }}</td>
+                    <td>{{ "best name %d" % i }}</td>
+                    <td>{{ "worst name %d" % i }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        <table class="table table-condensed">
+            <caption>Top-5 the longest/shortest episodes by duration</caption>
+            <thead>
+            <th>Place</th>
+            <th>The longest</th>
+            <th>The shortest</th>
+            </thead>
+            <tbody>
+            {% for i in range(1, 6) %}
+                <tr>
+                    <td>{{ i }}</td>
+                    <td>{{ "longest title %d" % i }}</td>
+                    <td>{{ "shortest %d" % i }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+
+        <form class="form-horizontal well">
+            <div class="text-center"><h4>Find top-5 serials in genre</h4></div>
+            <div class="form-group">
+                <div class="row">
+                    <label for="inputGenre" class="col-sm-2 control-label">Genre</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="inputGenre" placeholder="Some genre">
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="text-center write-btn">
+                            <button class="btn btn-success search-genre-btn" id="topForGenreBtn">
+                                <span class="glyphicon glyphicon-search"></span> Search
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <table id="topForGenreTbl" class="table table-striped table-bordered hidden">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Title</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for i in range(1, 6) %}
+                    <tr>
+                        <td>{{ i }}</td>
+                        <td>title</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </form>
+
+        <form class="form-horizontal well">
+            <div class="text-center"><h4>Find all actor roles</h4></div>
+            <div class="form-group">
+                <div class="row">
+                    <label for="inputActor" class="col-sm-2 control-label">Actor</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="inputActor" placeholder="Actor name">
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="text-center write-btn">
+                            <button class="btn btn-success search-genre-btn" id="topForActorBtn">
+                                <span class="glyphicon glyphicon-search"></span> Search
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+            <table id="topForActorTbl" class="table table-striped table-bordered hidden">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Role</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for i in range(1, 6) %}
+                    <tr>
+                        <td>{{ i }}</td>
+                        <td>Role</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </form>
+
+    </div> <!-- /container -->
+{% endblock %}

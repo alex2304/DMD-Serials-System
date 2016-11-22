@@ -52,28 +52,15 @@
                 "min": 5.0,
                 "max": 10.0,
             });
+
+            var durationSlider = $("#inputDuration").slider({
+                "range": true,
+                "min": 0,
+                "max": 1000,
+            });
         });
 
     </script>
-{% endblock %}
-
-{% block header %}
-    <!-- Static navbar -->
-    <nav class="navbar navbar-default navbar-static-top">
-        <div class="container">
-            <div class="navbar-header">
-                <a class="navbar-brand" href="#">Project name</a>
-            </div>
-            <ul class="nav navbar-nav navbar-right">
-                <li><a class="active" href="/serials">Serials</a></li>
-                <li><a href="">Actors</a></li>
-                <li><a href="">Writers</a></li>
-                <li><a href="">Directors</a></li>
-                <li><a href="">Statistic</a></li>
-                <li><a href="">Login</a></li>
-            </ul>
-        </div><!--/.nav-collapse -->
-    </nav>
 {% endblock %}
 
 {% block content %}
@@ -117,6 +104,13 @@
                     <div class="col-sm-6">
                         <label for="inputGenre" class="control-label">Genres (comma separated)</label>
                         <input name="inputGenre" id="inputGenre" type="text" class="form-control"/>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-12">
+                        <label for="inputDuration" class="control-label">Duration</label>
+                        <input name="inputDuration" id="inputDuration" type="text" class="form-control"/>
                     </div>
                 </div>
 

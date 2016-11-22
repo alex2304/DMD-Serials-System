@@ -303,6 +303,12 @@ CREATE OR REPLACE FUNCTION insert_into_serial(title CHAR(100), release_year INTE
   END;
 $$ LANGUAGE plpgsql;
 
+CREATE OR REPLACE FUNCTION insert_into_serial(id INTEGER, title CHAR(100), release_year INTEGER,country CHAR(50)) RETURNS VOID AS $$
+  BEGIN
+    INSERT INTO serial (serial_id, title, release_year, country) VALUES ($1, $2, $3, $4);
+  END;
+$$ LANGUAGE plpgsql;
+
 CREATE OR REPLACE FUNCTION insert_into_person(name CHAR(50), birthdate DATE, genger CHAR(1)) RETURNS VOID AS $$
   BEGIN
     INSERT INTO person (name, birthdate, genger) VALUES ($1, $2, $3);

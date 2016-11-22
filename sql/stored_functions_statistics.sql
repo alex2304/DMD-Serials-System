@@ -4,7 +4,7 @@ DROP FUNCTION get_ranked_serials_with_no_less_5_seasons_where_no_more_10_episode
 DROP FUNCTION get_top_5_serials_in_each_genre();
 DROP FUNCTION get_list_of_episodes_where_each_actor_played_and_role();
 DROP FUNCTION get_list_of_episodes_where_the_actor_played_and_role(CHAR);
-
+DROP FUNCTION get_top_10_rated_episodes_for_each_actor(CHARACTER);
 DROP FUNCTION get_roles_of_all_people_in_each_episode();
 DROP FUNCTION get_roles_of_all_people_for_the_one_episode(CHAR, INTEGER, CHAR);
 --DROP FUNCTION get_roles_of_all_people_for_the_one_episode(INTEGER, INTEGER, INTEGER);
@@ -97,18 +97,19 @@ ORDER BY s.title, e.title;
 $$ LANGUAGE plpgsql;
 
 
---list of best rated episodes of the serial where actor occured (top 10)
-/*CREATE OR REPLACE FUNCTION get_top_10_rated_episodes_for_each_actor(name CHARACTER)
-  RETURNS TABLE (role_name CHARACTER, episode_title CHARACTER, serial_title CHARACTER) AS $$
+--list of best rated episodes of the serial where actor filmed (top 10)
+CREATE OR REPLACE FUNCTION get_top_10_rated_episodes_for_each_actor(name CHARACTER)
+  RETURNS TABLE (role_name CHARACTER, episode_title CHARACTER, serial_title CHARACTER, rating INTEGER) AS $$
 BEGIN
-  RETURN QUERY SELECT r.title role_name, e.title episode_title, s.title serial_title
+  RETURN QUERY SELECT r.title role_name, e.title episode_title, s.title serial_title, e.rating
                  FROM episode e NATURAL JOIN films NATURAL JOIN plays pl JOIN role r ON r.role_id = pl.role_id
                    NATURAL JOIN actor a JOIN person p ON a.actor_id = p.person_id JOIN serial s ON e.serial_id = s.serial_id
                  WHERE p.name = $1
-GROUP BY s.title, e.title, r.title
-ORDER BY s.title, e.title;
+GROUP BY s.title, e.title, r.title, e.rating
+ORDER BY e.rating DESC, s.title, e.title
+LIMIT 10;
 END
-$$ LANGUAGE plpgsql;*/
+$$ LANGUAGE plpgsql;
 
 --all people with roles of an episode: actors, directors, writers
 CREATE OR REPLACE FUNCTION get_roles_of_all_people_in_each_episode()

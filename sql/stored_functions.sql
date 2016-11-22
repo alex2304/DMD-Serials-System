@@ -208,3 +208,12 @@ $BODY$
   WHERE c.serial_id = $1 AND c.season_number = $2;
 $BODY$
 LANGUAGE sql;
+
+CREATE OR REPLACE FUNCTION get_reviews_of(_serial_id INTEGER) RETURNS
+TABLE(title CHAR, review_text CHAR, review_date DATE, user_login CHAR) AS
+$BODY$
+  SELECT r.title, r.text, r.review_date, r.app_user_login
+  FROM reviews r
+  WHERE r.serial_id = $1;
+$BODY$
+LANGUAGE sql;

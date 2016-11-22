@@ -52,6 +52,12 @@
                 "min": 5.0,
                 "max": 10.0,
             });
+
+            var durationSlider = $("#inputDuration").slider({
+                "range": true,
+                "min": 0,
+                "max": 1000,
+            });
         });
 
     </script>
@@ -98,6 +104,13 @@
                     <div class="col-sm-6">
                         <label for="inputGenre" class="control-label">Genres (comma separated)</label>
                         <input name="inputGenre" id="inputGenre" type="text" class="form-control"/>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-12">
+                        <label for="inputDuration" class="control-label">Duration</label>
+                        <input name="inputDuration" id="inputDuration" type="text" class="form-control"/>
                     </div>
                 </div>
 

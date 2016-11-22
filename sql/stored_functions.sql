@@ -199,3 +199,12 @@ TABLE(genre_title CHAR,  serials_count BIGINT) AS
     GROUP BY g.genre_title;
   $BODY$
 LANGUAGE sql;
+
+CREATE OR REPLACE FUNCTION get_comments_of(_serial_id INTEGER, _season_number INTEGER) RETURNS
+TABLE(comment_text CHAR, comment_date DATE, user_login CHAR) AS
+$BODY$
+  SELECT c.text, c.comment_date, c.app_user_login
+  FROM comments c
+  WHERE c.serial_id = $1 AND c.season_number = $2;
+$BODY$
+LANGUAGE sql;

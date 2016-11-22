@@ -15,13 +15,16 @@ def filter_serials():
     countries_list = request.form['inputCountry'].split(',') if request.form['inputCountry'] != '' else []
     actors_list = request.form['inputActor'].split(',') if request.form['inputActor'] != '' else []
     genres_list = request.form['inputGenre'].split(',') if request.form['inputGenre'] != '' else []
+    start_duration, end_duration = list(map(lambda x: int(x), request.form['inputDuration'].split(',')))
 
     filtered_serials = SerialsRepository.get_filtered_serials(title_part,
                                                               start_year, end_year,
                                                               start_rating, end_rating,
-                                                              countries_list, actors_list, genres_list)
+                                                              countries_list, actors_list, genres_list,
+                                                              start_duration, end_duration)
 
-    return render_template('serials.html', serials_info=filtered_serials)
+    serials_in_genres_counts = SerialsRepository.get_serials_in_genres_counts()
+    return render_template('serials.html', serials_info=filtered_serials, genres=serials_in_genres_counts)
 
 
 @serials.route('/')
@@ -61,12 +64,13 @@ def process_serial(serial_id):
 
     episodes_of_serial = SerialsRepository.get_serial_episodes(serial_id)
     serial_info = SerialsRepository.get_serial_by_id(serial_id)
-
+    serial_played = SerialsRepository.get_serial_played(serial_id)
     if episodes_of_serial:
         serial_awards_list = list(map(lambda a: "%s(%s)" % (a.award_title, str(a.award_year)), serial_info.awards))
         return render_template('serial_info.html', serial_info=serial_info,
                                episodes_info=episodes_of_serial,
-                               serial_awards=serial_awards_list)
+                               serial_awards=serial_awards_list,
+                               serial_played=serial_played)
     else:
         abort(404)
 

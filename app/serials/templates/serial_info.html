@@ -43,10 +43,10 @@
                     </tr>
                     </thead>
                     <tbody>
-                    {% for p in range(5) %}
+                    {% for p in serial_played %}
                         <tr>
-                            <td><a href="/actors/{{ "1" }}">{{ "p.actor_name" }}</a></td>
-                            <td>{{ "p.role_title" }}</td>
+                            <td><a href="/actors/{{ "1" }}">{{ p.actor_name }}</a></td>
+                            <td>{{ p.role_title }}</td>
                             {% if p.award_title and p.award_year %}
                                 <td>{{ "%s (%s)" % (p.award_title, p.award_year) }}</td>
                             {% else %}

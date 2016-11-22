@@ -27,7 +27,8 @@ def filter_serials():
 @serials.route('/')
 def index():
     serials_info = SerialsRepository.get_all_serials()
-    return render_template('serials.html', serials_info=serials_info)
+    genres = dict(Action=13, Comdey=12, Fantasy=11)
+    return render_template('serials.html', serials_info=serials_info,  genres=genres)
 
 
 @serials.route('serials/')

@@ -15,7 +15,7 @@ def filter_serials():
     countries_list = request.form['inputCountry'].split(',') if request.form['inputCountry'] != '' else []
     actors_list = request.form['inputActor'].split(',') if request.form['inputActor'] != '' else []
     genres_list = request.form['inputGenre'].split(',') if request.form['inputGenre'] != '' else []
-
+    
     filtered_serials = SerialsRepository.get_filtered_serials(title_part,
                                                               start_year, end_year,
                                                               start_rating, end_rating,
@@ -53,21 +53,20 @@ def process_serials(serial_id=None, season_number=None, episode_number=None):
             return process_serial(serial_id)
 
     serials_info = SerialsRepository.get_all_serials(order_by_field='title')
-    return render_template('serials.html', serials_info=serials_info)
+    serials_in_genres_counts = SerialsRepository.get_serials_in_genres_counts()
+    return render_template('serials.html', serials_info=serials_info, genres=serials_in_genres_counts)
 
 
 def process_serial(serial_id):
 
     episodes_of_serial = SerialsRepository.get_serial_episodes(serial_id)
     serial_info = SerialsRepository.get_serial_by_id(serial_id)
-    serials_in_genres_count = SerialsRepository.get_serials_in_genres_counts()
 
     if episodes_of_serial:
         serial_awards_list = list(map(lambda a: "%s(%s)" % (a.award_title, str(a.award_year)), serial_info.awards))
         return render_template('serial_info.html', serial_info=serial_info,
                                episodes_info=episodes_of_serial,
-                               serial_awards=serial_awards_list,
-                               genres_counts=serials_in_genres_count)
+                               serial_awards=serial_awards_list)
     else:
         abort(404)
 

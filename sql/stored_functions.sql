@@ -4,11 +4,12 @@ drop FUNCTION get_rating_of(INTEGER, INTEGER);
 drop FUNCTION get_genres_of_serial_titles(INTEGER);
 drop FUNCTION get_actors_names_of(INTEGER);
 drop FUNCTION get_actors_names_of(INTEGER, INTEGER);
-DROP FUNCTION get_filtered_serials(CHAR, integer, integer, NUMERIC,NUMERIC, CHAR[],CHAR[],CHAR[]);
+DROP FUNCTION get_filtered_serials(CHAR, integer, integer, NUMERIC,NUMERIC, CHAR[],CHAR[],CHAR[], INTEGER, INTEGER);
 DROP FUNCTION get_seasons_of_serial(INTEGER);
 DROP FUNCTION get_serial_awards(INTEGER);
 DROP FUNCTION get_creators_of_serial_names(INTEGER);
 DROP FUNCTION get_duration_of(INTEGER, INTEGER);
+DROP FUNCTION get_duration_of(INTEGER);
 DROP FUNCTION get_episode_directors_names(INTEGER, INTEGER, INTEGER);
 DROP FUNCTION get_episode_writers_names(INTEGER, INTEGER, INTEGER);
 DROP FUNCTION get_episode_played(INTEGER, INTEGER, INTEGER);
@@ -82,11 +83,19 @@ CREATE OR REPLACE FUNCTION get_actors_names_of(_serial_id INTEGER, _season_numbe
   $BODY$
   LANGUAGE sql;
 
+CREATE OR REPLACE FUNCTION get_duration_of(_serial_id INTEGER) RETURNS
+ BIGINT AS
+ $BODY$
+    SELECT sum(e.duration)
+    FROM season s NATURAL JOIN episode e
+    WHERE s.serial_id = $1;
+ $BODY$
+ LANGUAGE sql;
+
 CREATE OR REPLACE FUNCTION get_filtered_serials(title_part CHAR, start_year INTEGER, end_year INTEGER,
   start_rating NUMERIC, end_rating NUMERIC, countries CHAR[], actors CHAR[], genres CHAR[], start_duration INTEGER, end_duration INTEGER) RETURNS
   TABLE(serial_id INTEGER, title CHAR, release_year INTEGER, country CHAR) AS
   $BODY$
-    DECLARE v_List TEXT;
     SELECT s.serial_id, s.title, s.release_year, s.country FROM serial s
     WHERE lower(s.title) LIKE ('%' || lower(title_part) || '%')                   -- title matching
     AND s.release_year <@ INT4RANGE(start_year, end_year + 1)                     -- year matching
@@ -130,7 +139,6 @@ CREATE OR REPLACE FUNCTION get_duration_of(_serial_id INTEGER, _season_number IN
     WHERE s.serial_id = $1 AND s.season_number = $2;
  $BODY$
  LANGUAGE sql;
-
 
 CREATE OR REPLACE FUNCTION get_episode_directors_names(_serial_id INTEGER, _season_number INTEGER, _episode_number INTEGER) RETURNS
  TABLE(director_name CHAR) AS

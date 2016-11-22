@@ -61,12 +61,13 @@ def process_serial(serial_id):
 
     episodes_of_serial = SerialsRepository.get_serial_episodes(serial_id)
     serial_info = SerialsRepository.get_serial_by_id(serial_id)
-
+    serial_played = SerialsRepository.get_serial_played(serial_id)
     if episodes_of_serial:
         serial_awards_list = list(map(lambda a: "%s(%s)" % (a.award_title, str(a.award_year)), serial_info.awards))
         return render_template('serial_info.html', serial_info=serial_info,
                                episodes_info=episodes_of_serial,
-                               serial_awards=serial_awards_list)
+                               serial_awards=serial_awards_list,
+                               serial_played=serial_played)
     else:
         abort(404)
 

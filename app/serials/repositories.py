@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Dict
 
 from app import db, db_engine
 from app.serials.models import SerialsMapping, Serial, Episode, EpisodesMapping, SeasonsMapping, Season, SerialAward, \
@@ -32,6 +32,8 @@ class SerialsRepository:
             serial.genres_titles = cls.get_serial_genres_titles(serial.serial_id)
             serial.awards = cls.get_serial_awards(serial.serial_id)
             serial.creators_names = cls.get_serial_creators_names(serial.serial_id)
+
+            serial.played = cls.get_serial_played(serial.serial_id)
             extended_serials.append(serial)
 
         return extended_serials
@@ -61,9 +63,12 @@ class SerialsRepository:
 
     @classmethod
     def get_filtered_serials(cls, title_part: str, start_year: int, end_year: int, start_rating: int, end_rating: int,
-                             countries_list: List[str], actors_list: List[str], genres_list: List[str]) -> List[Serial]:
+                             countries_list: List[str], actors_list: List[str], genres_list: List[str],
+                             start_duration: int, end_duration: int) -> List[Serial]:
         """
         Get serials filtered by given params
+        :param start_duration:
+        :param end_duration:
         :param title_part:
         :param end_rating:
         :param start_rating:
@@ -77,19 +82,22 @@ class SerialsRepository:
         serials_columns_string = qh.get_columns_string(SerialsMapping)
 
         all_serials_query = qe.execute_mapped(db,
-                                       "SELECT {serials_columns} "
-                                       "FROM get_filtered_serials('{title_part}', {start_year}, "
-                                       "{end_year}, {start_rating}, {end_rating}, {countries}, {actors}, {genres})",
+                                           "SELECT {serials_columns}"
+                                           " FROM get_filtered_serials('{title_part}', {start_year}, "
+                                           " {end_year}, {start_rating}, {end_rating}, {countries}, {actors}, {genres},"
+                                           " {start_duration}, {end_duration})",
                                               *[Serial],
                                               **{'serials_columns': serials_columns_string,
-                                          'title_part': title_part,
-                                          'start_year': start_year,
-                                          'end_year': end_year,
-                                          'start_rating': start_rating,
-                                          'end_rating': end_rating,
-                                          'countries': qh.get_sql_array(countries_list),
-                                          'actors': qh.get_sql_array(actors_list),
-                                          'genres': qh.get_sql_array(genres_list)})
+                                                  'title_part': title_part,
+                                                  'start_year': start_year,
+                                                  'end_year': end_year,
+                                                  'start_rating': start_rating,
+                                                  'end_rating': end_rating,
+                                                  'countries': qh.get_sql_array(countries_list),
+                                                  'actors': qh.get_sql_array(actors_list),
+                                                  'genres': qh.get_sql_array(genres_list),
+                                                 'start_duration': start_duration,
+                                                 'end_duration': end_duration})
 
         return cls._get_extended_serials(all_serials_query)
 
@@ -217,6 +225,29 @@ class SerialsRepository:
                                               **{'serial_id': serial_id})
 
         return [str(row['creator_name']).rstrip() for row in serial_actors]
+
+    @classmethod
+    def get_serial_played(cls, serial_id):
+
+        serial_played = qe.execute_arbitrary(db_engine,
+                                             "SELECT *"
+                                             " FROM get_serial_played({serial_id})",
+                                             **{'serial_id': serial_id})
+
+        return [Played(serial_id, None, None,
+                       str(row['actor_name']).rstrip(), str(row['role_title']).rstrip(),
+                       str(row['award_title']).rstrip(), row['award_year'])
+                for row in serial_played]
+
+    @classmethod
+    def get_serials_in_genres_counts(cls) -> Dict:
+
+        genres = qe.execute_arbitrary(db_engine,
+                                      "SELECT *"
+                                      " FROM get_serials_in_genres_counts()",
+                                     )
+
+        return {str(row['genre_title']): row['serials_count'] for row in genres}
 
 
 class SeasonsRepository:

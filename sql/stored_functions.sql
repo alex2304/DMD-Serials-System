@@ -83,9 +83,10 @@ CREATE OR REPLACE FUNCTION get_actors_names_of(_serial_id INTEGER, _season_numbe
   LANGUAGE sql;
 
 CREATE OR REPLACE FUNCTION get_filtered_serials(title_part CHAR, start_year INTEGER, end_year INTEGER,
-  start_rating NUMERIC, end_rating NUMERIC, countries CHAR[], actors CHAR[], genres CHAR[]) RETURNS
+  start_rating NUMERIC, end_rating NUMERIC, countries CHAR[], actors CHAR[], genres CHAR[], start_duration INTEGER, end_duration INTEGER) RETURNS
   TABLE(serial_id INTEGER, title CHAR, release_year INTEGER, country CHAR) AS
   $BODY$
+    DECLARE v_List TEXT;
     SELECT s.serial_id, s.title, s.release_year, s.country FROM serial s
     WHERE lower(s.title) LIKE ('%' || lower(title_part) || '%')                   -- title matching
     AND s.release_year <@ INT4RANGE(start_year, end_year + 1)                     -- year matching
@@ -96,8 +97,9 @@ CREATE OR REPLACE FUNCTION get_filtered_serials(title_part CHAR, start_year INTE
         WHERE act.actor_name = ANY(actors)))
     AND (genres is NULL or EXISTS(
         SELECT genre_title FROM get_genres_of_serial_titles(s.serial_id) genr
-        WHERE genr.genre_title = ANY(genres)));
-
+        WHERE genr.genre_title = ANY(genres)))
+    AND (start_duration is NULL or get_duration_of(s.serial_id) > start_duration)
+    AND (end_duration is NULL or get_duration_of(s.serial_id) < end_duration);
   $BODY$
   LANGUAGE sql;
 

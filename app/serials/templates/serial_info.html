@@ -52,6 +52,34 @@
         <div class="row">
             <div class="col-md-12">
                 <table class="table table-striped">
+                    <caption class="text-left">Casts</caption>
+                    <thead>
+                    <tr>
+                        <th>Actor</th>
+                        <th>Role</th>
+                        <th>Awards</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for p in range(5) %}
+                        <tr>
+                            <td><a href="/actors/{{ "1" }}">{{ "p.actor_name" }}</a></td>
+                            <td>{{ "p.role_title" }}</td>
+                            {% if p.award_title and p.award_year %}
+                                <td>{{ "%s (%s)" % (p.award_title, p.award_year) }}</td>
+                            {% else %}
+                                <td>-</td>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table table-striped">
                     <caption class="text-left">Seasons</caption>
                     <thead>
                     <tr>

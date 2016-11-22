@@ -81,10 +81,9 @@ class SerialAward(object):
     """
 
     def __init__(self, serial_id, award_title, award_year):
-        super.__init__()
-        self.serial_id = None
-        self.award_title = None
-        self.award_year = None
+        self.award_year = award_year
+        self.award_title = award_title
+        self.serial_id = serial_id
 
 
 class Played:
@@ -94,7 +93,6 @@ class Played:
 
     def __init__(self, serial_id=None, season_number=None, episode_number=None, actor_name=None, role_title=None,
                  award_title=None, award_year=None):
-        super.__init__()
         self.serial_id = serial_id
         self.season_number = season_number
         self.episode_number = episode_number

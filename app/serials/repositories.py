@@ -232,7 +232,7 @@ class SeasonsRepository:
             season.actors_names = cls.get_season_actors_names(season.serial_id, season.season_number)
             season.rating = cls.get_season_rating(season.serial_id, season.season_number)
             season.duration = cls.get_season_duration(season.serial_id, season.season_number)
-
+            season.release_date = cls.get_season_date(season.serial_id, season.season_number)
             extended_seasons.append(season)
 
         return extended_seasons
@@ -301,6 +301,18 @@ class SeasonsRepository:
 
         if len(season_duration) > 0:
             return season_duration[0]['get_duration_of']
+        return None
+
+    @classmethod
+    def get_season_date(cls, serial_id, season_number):
+        season_date = qe.execute_arbitrary(db_engine,
+                                             "SELECT *"
+                                             " FROM get_season_date({serial_id}, {season_number})",
+                                             **{'serial_id': serial_id,
+                                                'season_number': season_number})
+
+        if len(season_date) > 0:
+            return season_date[0]['get_season_date']
         return None
 
 

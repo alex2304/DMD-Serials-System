@@ -152,7 +152,6 @@ CREATE OR REPLACE FUNCTION get_episode_writers_names(_serial_id INTEGER, _season
 CREATE OR REPLACE FUNCTION get_episode_played(_serial_id INTEGER, _season_number INTEGER, _episode_number INTEGER) RETURNS
  TABLE(actor_name CHAR, role_title CHAR, award_title CHAR, award_year INTEGER) AS
  $BODY$
-   -- если награды за игру актёра в данной роли не было - поля award_title и award_year равны NULL
    SELECT temp.actor_name, temp.role_title, rha.award_title, rha.year
    FROM episode e NATURAL JOIN films NATURAL JOIN plays
      NATURAL JOIN (SELECT r.title role_title, p.name actor_name, pl.played_id played_id

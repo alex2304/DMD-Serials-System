@@ -33,5 +33,6 @@ def build_app(default_config_name):
     app.register_blueprint(serials_blueprint, url_prefix='/')
     from .persons import persons as persons_blueprint
     app.register_blueprint(persons_blueprint, url_prefix='/persons')
-
+    from .statistic import statistics as statistics_blueprint
+    app.register_blueprint(statistics_blueprint, url_prefix='/statistics')
     return app

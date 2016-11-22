@@ -3,7 +3,7 @@ from flask import render_template
 from . import statistics
 
 
-@statistics.route('statistic/')
-def process_actors():
+@statistics.route('/')
+def process_statistics():
 
-    return render_template('serials.html')
+    return render_template('statistics.html')

@@ -15,7 +15,7 @@ def filter_serials():
     countries_list = request.form['inputCountry'].split(',') if request.form['inputCountry'] != '' else []
     actors_list = request.form['inputActor'].split(',') if request.form['inputActor'] != '' else []
     genres_list = request.form['inputGenre'].split(',') if request.form['inputGenre'] != '' else []
-    
+
     filtered_serials = SerialsRepository.get_filtered_serials(title_part,
                                                               start_year, end_year,
                                                               start_rating, end_rating,
@@ -27,8 +27,8 @@ def filter_serials():
 @serials.route('/')
 def index():
     serials_info = SerialsRepository.get_all_serials()
-    genres = dict(Action=13, Comdey=12, Fantasy=11)
-    return render_template('serials.html', serials_info=serials_info,  genres=genres)
+    serials_in_genres_counts = SerialsRepository.get_serials_in_genres_counts()
+    return render_template('serials.html', serials_info=serials_info,  genres=serials_in_genres_counts)
 
 
 @serials.route('serials/')

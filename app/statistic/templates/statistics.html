@@ -15,11 +15,10 @@
                 var tbl = $("#topForGenreTbl").find('tbody');
                 tbl.parent().removeClass("hidden");
                 tbl.empty();
-                $.get("/statistics/top_for_genre", {genre: $('#inputGenre').val()})
+                $.get("{{ url_for('statistics.process_statistics') }}", {top5_serials_in_genre: $('#inputGenre').val()})
                         .done(function (data) {
-{#                            data = [1, 2, 3, 4, 5];#}
                             $.each(data, function (index, element) {
-                                tbl.append('<tr><td>' + (index + 1) + '</td><td>' + element + '</td></tr>')
+                                tbl.append('<tr><td>' + (index + 1) + '</td><td>' + element["title"] + '</td><td>' + element["rating"] + '</td></tr>')
                             });
                         });
                 e.preventDefault();
@@ -31,11 +30,10 @@
                 var tbl = $("#topForActorTbl").find('tbody');
                 tbl.parent().removeClass("hidden");
                 tbl.empty();
-                $.get("/statistics/top_for_actor", {actor: $('#inputActor').val()})
+                $.get("{{ url_for('statistics.process_statistics') }}", {actor_roles: $('#inputActor').val()})
                         .done(function (data) {
-{#                            data = [1, 2, 3, 4, 5];#}
                             $.each(data, function (index, element) {
-                                tbl.append('<tr><td>' + (index + 1) + '</td><td>' + element + '</td></tr>')
+                                tbl.append('<tr><td>' + (index + 1) + '</td><td>' + element['serial_title'] + '</td><td>' + element['episode_title'] + '</td><td>' + element['role_name'] + '</td></tr>')
                             });
                         });
                 e.preventDefault();
@@ -47,11 +45,10 @@
                 var tbl = $("#topShortestTbl").find('tbody');
                 tbl.parent().removeClass("hidden");
                 tbl.empty();
-                $.get("/statistics/top_shortest", {actor: $('#inputGenre2').val()})
+                $.get("{{ url_for('statistics.process_statistics') }}", {top5_shortest_serials_in_genres: $('#inputGenre2').val()})
                         .done(function (data) {
-{#                            data = [1, 2, 3, 4, 5, 6];#}
                             $.each(data, function (index, element) {
-                                tbl.append('<tr><td>' + (index + 1) + '</td><td>' + element + '</td></tr>')
+                                tbl.append('<tr><td>' + (index + 1) + '</td><td>' + element['serial_title'] + '</td><td>' + element['duration'] + '</td></tr>')
                             });
                         });
                 e.preventDefault();
@@ -65,49 +62,49 @@
 
     <div class="container">
         <table class="table table-condensed">
-            <caption>Top-5 the best/worst creators by rating of their serials</caption>
+            <caption>Top-5 the best creators by rating of their serials</caption>
             <thead>
-            <th>Place</th>
-            <th>The best</th>
-            <th>The worst</th>
+            <th>Rank</th>
+            <th>Creator</th>
+            <th>Average serials' rating</th>
             </thead>
             <tbody>
-            {% for i in range(1, 6) %}
+            {% for i in range(0, top5_creators|length) %}
                 <tr>
-                    <td>{{ i }}</td>
-                    <td>{{ "best name %d" % i }}</td>
-                    <td>{{ "worst name %d" % i }}</td>
+                    <td>{{ i + 1 }}</td>
+                    <td>{{ top5_creators[i]['name'] }}</td>
+                    <td>{{ top5_creators[i]['rating'] }}</td>
                 </tr>
             {% endfor %}
             </tbody>
         </table>
 
         <table class="table table-condensed">
-            <caption>Top-5 the longest/shortest episodes by duration</caption>
+            <caption>Top-5 serials with shortest average episodes duration</caption>
             <thead>
-            <th>Place</th>
-            <th>The longest</th>
-            <th>The shortest</th>
+            <th>Rank</th>
+            <th>Serial title</th>
+            <th>Average episodes length</th>
             </thead>
             <tbody>
-            {% for i in range(1, 6) %}
+            {% for i in range(0, top5_longest_episodes|length) %}
                 <tr>
-                    <td>{{ i }}</td>
-                    <td>{{ "longest title %d" % i }}</td>
-                    <td>{{ "shortest %d" % i }}</td>
+                    <td>{{ i + 1 }}</td>
+                    <td>{{ top5_longest_episodes[i]['title'] }}</td>
+                    <td>{{ top5_longest_episodes[i]['avg_episode_length'] }}</td>
                 </tr>
             {% endfor %}
             </tbody>
         </table>
 
 
-        <form class="form-horizontal well">
+        <form class="form-horizontal well" action="{{ url_for('statistics.process_statistics') }}" method="post">
             <div class="text-center"><h4>Find top-5 serials in genre</h4></div>
             <div class="form-group">
                 <div class="row">
                     <label for="inputGenre" class="col-sm-2 control-label">Genre</label>
                     <div class="col-sm-10">
-                        <input type="text" class="form-control" id="inputGenre" placeholder="Some genre">
+                        <input type="text" class="form-control" name="top5_serials_in_genre" id="inputGenre" placeholder="Some genre">
                     </div>
                 </div>
 
@@ -126,26 +123,28 @@
                 <tr>
                     <th>#</th>
                     <th>Title</th>
+                    <th>Rating</th>
                 </tr>
                 </thead>
                 <tbody>
-                {% for i in range(1, 6) %}
+                {% for i in range(0, top5_serials_in_genre|length) %}
                     <tr>
-                        <td>{{ i }}</td>
-                        <td>title</td>
+                        <td>{{ i + 1 }}</td>
+                        <td>{{ top5_serials_in_genre[i]['title'] }}</td>
+                        <td>{{ top5_serials_in_genre[i]['rating'] }}</td>
                     </tr>
                 {% endfor %}
                 </tbody>
             </table>
         </form>
 
-        <form class="form-horizontal well">
+        <form class="form-horizontal well" action="{{ url_for('statistics.process_statistics') }}" method="post">
             <div class="text-center"><h4>Find top-5 the shortest serials in genres</h4></div>
             <div class="form-group">
                 <div class="row">
                     <label for="inputGenre2" class="col-sm-2 control-label">Genre (comma separated)</label>
                     <div class="col-sm-10">
-                        <input type="text" class="form-control" id="inputGenre2" placeholder="Some genres">
+                        <input type="text" class="form-control" name="top5_shortest_serials_in_genres" id="inputGenre2" placeholder="Some genres">
                     </div>
                 </div>
 
@@ -164,13 +163,15 @@
                 <tr>
                     <th>#</th>
                     <th>Title</th>
+                    <th>Duration</th>
                 </tr>
                 </thead>
                 <tbody>
-                {% for i in range(1, 6) %}
+                {% for i in range(0, top5_shortest_in_genres|length) %}
                     <tr>
-                        <td>{{ i }}</td>
-                        <td>Title</td>
+                        <td>{{ i + 1 }}</td>
+                        <td>{{ top5_shortest_in_genres[i]['serial_title'] }}</td>
+                        <td>{{ top5_shortest_in_genres[i]['duration'] }}</td>
                     </tr>
                 {% endfor %}
                 </tbody>
@@ -179,13 +180,13 @@
 
 
 
-        <form class="form-horizontal well">
+        <form class="form-horizontal well" action="{{ url_for('statistics.process_statistics') }}" method="post">
             <div class="text-center"><h4>Find all actor roles</h4></div>
             <div class="form-group">
                 <div class="row">
                     <label for="inputActor" class="col-sm-2 control-label">Actor</label>
                     <div class="col-sm-10">
-                        <input type="text" class="form-control" id="inputActor" placeholder="Actor name">
+                        <input type="text" class="form-control" name="actor_roles" id="inputActor" placeholder="Actor name">
                     </div>
                 </div>
 
@@ -205,14 +206,18 @@
                 <thead>
                 <tr>
                     <th>#</th>
+                    <th>Serial</th>
+                    <th>Episode</th>
                     <th>Role</th>
                 </tr>
                 </thead>
                 <tbody>
-                {% for i in range(1, 6) %}
+                {% for i in range(0, actor_roles|length) %}
                     <tr>
-                        <td>{{ i }}</td>
-                        <td>Role</td>
+                        <td>{{ i + 1 }}</td>
+                        <td>{{ actor_roles[i]['serial_title'] }}</td>
+                        <td>{{ actor_roles[i]['episode_title'] }}</td>
+                        <td>{{ actor_roles[i]['role_name'] }}</td>
                     </tr>
                 {% endfor %}
                 </tbody>

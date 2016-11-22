@@ -26,13 +26,13 @@ class StatisticsRepository:
 
         query_result = qe.execute_arbitrary(db_engine,
                                              "SELECT *"
-                                             " FROM get_top5_serials_in_genre({genre_title})",
+                                             " FROM get_top5_serials_in_genre('{genre_title}')",
                                             **{
                                                 "genre_title": genre_title
                                             })
 
         return [{"title": str(row['serial_title']).rstrip(),
-                 "rating": round(row['serial_rating'], 2)}
+                 "rating": float(round(row['serial_rating'], 2))}
                 for row in query_result]
 
     @classmethod
@@ -40,7 +40,7 @@ class StatisticsRepository:
 
         query_result = qe.execute_arbitrary(db_engine,
                                              "SELECT *"
-                                             " FROM get_actor_roles({actor_name})",
+                                             " FROM get_actor_roles('{actor_name}')",
                                             **{
                                                 "actor_name": actor_name
                                             })
@@ -72,5 +72,5 @@ class StatisticsRepository:
                                              " FROM get_top5_creators()")
 
         return [{"name": str(row['creator_name']).rstrip(),
-                 "rating": row['average_serials_rating']}
+                 "rating": float(round(row['average_serials_rating'], 2))}
                 for row in query_result]

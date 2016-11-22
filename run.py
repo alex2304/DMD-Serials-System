@@ -25,6 +25,9 @@ def drop_create_db(_app):
     with _app.open_resource('../sql/stored_functions.sql', mode='r') as f:
         connection.cursor().execute(f.read())
 
+    with _app.open_resource('../sql/stored_functions_statistics.sql', mode='r') as f:
+        connection.cursor().execute(f.read())
+
     connection.commit()
     print(' * Database has been successfully recreated')
     connection.close()

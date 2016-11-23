@@ -2,7 +2,7 @@ from typing import List, Dict
 
 from app import db, db_engine
 from app.serials.models import SerialsMapping, Serial, Episode, EpisodesMapping, SeasonsMapping, Season, SerialAward, \
-    Played
+    Played, Comment, Review
 from app.utils.query_executor import QueryExecutor as qe
 from app.utils.query_helper import QueryHelper as qh
 
@@ -248,6 +248,32 @@ class SerialsRepository:
                                      )
 
         return {str(row['genre_title']): row['serials_count'] for row in genres}
+
+    @classmethod
+    def get_comments_of(cls, serial_id, season_number):
+        query_result = qe.execute_arbitrary(db_engine,
+                                             "SELECT *"
+                                             " FROM get_comments_of({serial_id}, {season_number})",
+                                             **{'serial_id': serial_id,
+                                                'season_number': season_number})
+
+        return [Comment(serial_id, season_number,
+                        str(row['comment_text']), row['comment_date'],
+                        str(row['user_login']))
+                for row in query_result]
+
+    @classmethod
+    def get_reviews_of(cls, serial_id):
+        query_result = qe.execute_arbitrary(db_engine,
+                                             "SELECT *"
+                                             " FROM get_reviews_of({serial_id})",
+                                             **{'serial_id': serial_id})
+
+        return [Review(serial_id, None,
+                        str(row['title']),
+                        str(row['review_text']), row['review_date'],
+                        str(row['user_login']))
+                for row in query_result]
 
 
 class SeasonsRepository:

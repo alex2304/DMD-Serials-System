@@ -67,10 +67,12 @@ def process_serial(serial_id):
     serial_played = SerialsRepository.get_serial_played(serial_id)
     if episodes_of_serial:
         serial_awards_list = list(map(lambda a: "%s(%s)" % (a.award_title, str(a.award_year)), serial_info.awards))
+        reviews = SerialsRepository.get_reviews_of(serial_id)
         return render_template('serial_info.html', serial_info=serial_info,
                                episodes_info=episodes_of_serial,
-                               serial_awards=serial_awards_list,
-                               serial_played=serial_played)
+                               serial_awards_list=serial_awards_list,
+                               serial_played=serial_played,
+                               reviews=reviews)
     else:
         abort(404)
 
@@ -79,8 +81,9 @@ def process_season(serial_id, season_number):
 
     serial_info = SerialsRepository.get_serial_by_id(serial_id, extended=False)
     season_info = SeasonsRepository.get_season_by_number(serial_id, season_number)
+    comments = SerialsRepository.get_comments_of(serial_id, season_number)
     if season_info:
-        return render_template('seasons.html', serial_info=serial_info, season_info=season_info)
+        return render_template('seasons.html', serial_info=serial_info, season_info=season_info, comments=comments)
     else:
         abort(404)
 

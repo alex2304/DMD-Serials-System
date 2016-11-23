@@ -185,7 +185,7 @@ $BODY$
   WHERE shg.genre_title = ANY ($1)
   GROUP BY s.title
   ORDER BY serial_duration
-  LIMIT 10;
+  LIMIT 5;
 $BODY$
 LANGUAGE sql;
 

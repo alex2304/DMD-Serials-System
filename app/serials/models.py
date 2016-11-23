@@ -87,6 +87,23 @@ class SerialAward(object):
         self.serial_id = serial_id
 
 
+class Comment:
+
+    def __init__(self, serial_id, season_number, text, date, username):
+        self.username = username
+        self.date = date
+        self.text = text
+        self.season_number = season_number
+        self.serial_id = serial_id
+
+
+class Review(Comment):
+
+    def __init__(self, serial_id, season_number, title, text, date, username):
+        Comment.__init__(self, serial_id, season_number, text, date, username)
+        self.title = title
+
+
 class Played:
     """
         Model represents Played table

@@ -235,6 +235,7 @@ class SerialsRepository:
                                              **{'serial_id': serial_id})
 
         return [Played(serial_id, None, None,
+                       row['actor_id'],
                        str(row['actor_name']).rstrip(), str(row['role_title']).rstrip(),
                        str(row['award_title']).rstrip(), row['award_year'])
                 for row in serial_played]
@@ -252,9 +253,9 @@ class SerialsRepository:
     @classmethod
     def get_comments_of(cls, serial_id, season_number):
         query_result = qe.execute_arbitrary(db_engine,
-                                             "SELECT *"
-                                             " FROM get_comments_of({serial_id}, {season_number})",
-                                             **{'serial_id': serial_id,
+                                            "SELECT *"
+                                            " FROM get_comments_of({serial_id}, {season_number})",
+                                            **{'serial_id': serial_id,
                                                 'season_number': season_number})
 
         return [Comment(serial_id, season_number,
@@ -418,7 +419,7 @@ class EpisodesRepository:
                                                 'season_number': season_number,
                                                 'episode_number': episode_number})
 
-        return [str(row['director_name']).rstrip() for row in episode_directors]
+        return {row['director_id']: str(row['director_name']).rstrip() for row in episode_directors}
 
     @classmethod
     def get_episode_writers_names(cls, serial_id, season_number, episode_number):
@@ -430,7 +431,7 @@ class EpisodesRepository:
                                                 'season_number': season_number,
                                                 'episode_number': episode_number})
 
-        return [str(row['writer_name']).rstrip() for row in episode_writers]
+        return {row['writer_id']: str(row['writer_name']).rstrip() for row in episode_writers}
 
     @classmethod
     def get_episode_played(cls, serial_id, season_number, episode_number):
@@ -443,6 +444,7 @@ class EpisodesRepository:
                                                 'episode_number': episode_number})
 
         return [Played(serial_id, season_number, episode_number,
+                       row['actor_id'],
                        str(row['actor_name']).rstrip(), str(row['role_title']).rstrip(),
                        str(row['award_title']).rstrip(), row['award_year'])
                 for row in episode_played]

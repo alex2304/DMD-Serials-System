@@ -9,12 +9,12 @@
                 <img class="img-responsive" src="{{ url_for('static', filename='images/360x512.png') }}" alt="">
             </div>
             <div class="col-md-9">
-                <h4 class="text-center">Rory Kinnear</h4>
+                <h4 class="text-center">{{ person_info.name }}</h4>
                 <div class="row">
-                    <div>Birth date: 4 Dec. 2011</div>
+                    <div>Birth date: {{ person_info.birthdate }}</div>
                 </div>
                 <div class="row">
-                    <div>Gender: man</div>
+                    <div>Gender: {% if person_info.genger == 'm' %}male{% else %}female{% endif %}</div>
                 </div>
             </div>
         </div>
@@ -33,41 +33,21 @@
                     </tr>
                     </thead>
                     <tbody>
-                    {% for i in range(0, 5) %}
+                    {% for i in range(0, episodes_info|length) %}
                         <tr>
                             <td>{{ i + 1 }}</td>
-                            <td>9.6</td>
-                            <td><a href="{{ url_for('persons.process_actors') }}{{ i }}">The National Anthem</a></td>
-                            <td><a href="/serials/{{ i }}">Black mirror</a></td>
-                            <td>4 Dec. 2011</td>
-                        </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-md-12">
-                <table class="table">
-                <caption class="text-left">Worst 5 episodes</caption>
-                    <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Rating</th>
-                        <th>Episode</th>
-                        <th>Serial</th>
-                        <th>Released</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for i in range(0, 5) %}
-                        <tr>
-                            <td>{{ i + 1 }}</td>
-                            <td>9.6</td>
-                            <td><a href="/episodes/{{ i }}">The National Anthem</a></td>
-                            <td><a href="/serials/{{ i }}">Black mirror</a></td>
-                            <td>4 Dec. 2011</td>
+                            <td>{{ episodes_info[i].rating }}</td>
+                            <td><a href="{{
+                                    url_for('serials.process_serials',
+                                    episode_number = episodes_info[i].episode_number,
+                                    season_number = episodes_info[i].season_number,
+                                    serial_id = episodes_info[i].serial_id)
+                                    }}">{{ episodes_info[i].title }}</a></td>
+                            <td><a href="{{
+                                    url_for('serials.process_serials',
+                                    serial_id = episodes_info[i].serial_id)
+                                    }}">{{ episodes_info[i].serial_title }}</a></td>
+                            <td>{{ episodes_info[i].release_date }}</td>
                         </tr>
                     {% endfor %}
                     </tbody>

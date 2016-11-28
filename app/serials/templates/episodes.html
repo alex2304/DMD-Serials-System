@@ -14,9 +14,13 @@
             </div>
             <div class="col-md-9">
                 <h3 class="text-center">{{ episode_info.title }}</h3>
-                <div><span><b>Directors:</b> {{ ", ".join(episode_info.directors_names) }}</span></div>
-                <div><span><b>Writers:</b> {{ ", ".join(episode_info.writers_names) }}</span></div>
-                <div><span><b>Date:</b> {{  episode_info.release_date }}</span></div>
+                <div><span><b>Directors:</b> {% for id, name in episode_info.directors_names.items() %}
+                    <a href="{{ url_for('persons.process_directors', director_id=id) }}">{{ name }} </a>
+                {% endfor %}</span></div>
+                <div><span><b>Writers:</b> {% for id, name in episode_info.writers_names.items() %}
+                    <a href="{{ url_for('persons.process_writers', writer_id=id) }}">{{ name }} </a>
+                {% endfor %}</span></div>
+                <div><span><b>Release date:</b> {{  episode_info.release_date }}</span></div>
                 <div><span><b>Duration:</b> {{  episode_info.duration }}</span></div>
             </div>
         </div>
@@ -35,7 +39,7 @@
                     <tbody>
                     {% for p in episode_info.played %}
                         <tr>
-                            <td><a href="{{ url_for('persons.process_actors') }}/{{ "1" }}">{{ p.actor_name }}</a></td>
+                            <td><a href="{{ url_for('persons.process_actors', actor_id=p.actor_id) }}">{{ p.actor_name }}</a></td>
                             <td>{{ p.role_title }}</td>
                             {% if p.award_title and p.award_year %}
                                 <td>{{ "%s (%s)" % (p.award_title, p.award_year) }}</td>

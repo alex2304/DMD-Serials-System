@@ -58,19 +58,20 @@ class Episode:
         Model represents Episodes table
     """
 
-    def __init__(self):
-        super.__init__()
-        self.title = None
-        self.release_date = None
+    def __init__(self, title=None, release_date=None, rating=None, serial_title=None,
+                 episode_number=None, season_number=None, serial_id=None):
+        self.title = title
+        self.release_date = release_date
+        self.rating = rating
         self.duration = None
-        self.rating = None
-        self.episode_number = None
-        self.season_number = None
-        self.serial_id = None
+        self.episode_number = episode_number
+        self.season_number = season_number
+        self.serial_id = serial_id
 
         self.directors_names = None
         self.writers_names = None
         self.played = None
+        self.serial_title = serial_title
 
     def __str__(self):
         return "Episode # %s (%s)" % (self.episode_number, self.title)
@@ -88,7 +89,6 @@ class SerialAward(object):
 
 
 class Comment:
-
     def __init__(self, serial_id, season_number, text, date, username):
         self.username = username
         self.date = date
@@ -98,7 +98,6 @@ class Comment:
 
 
 class Review(Comment):
-
     def __init__(self, serial_id, season_number, title, text, date, username):
         Comment.__init__(self, serial_id, season_number, text, date, username)
         self.title = title
@@ -109,8 +108,9 @@ class Played:
         Model represents Played table
     """
 
-    def __init__(self, serial_id=None, season_number=None, episode_number=None, actor_name=None, role_title=None,
-                 award_title=None, award_year=None):
+    def __init__(self, serial_id=None, season_number=None, episode_number=None, actor_id=None, actor_name=None,
+                 role_title=None, award_title=None, award_year=None):
+        self.actor_id = actor_id
         self.serial_id = serial_id
         self.season_number = season_number
         self.episode_number = episode_number

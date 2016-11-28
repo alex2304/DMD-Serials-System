@@ -15,6 +15,15 @@ DROP FUNCTION IF EXISTS  get_episode_writers_names(INTEGER, INTEGER, INTEGER);
 DROP FUNCTION IF EXISTS  get_episode_played(INTEGER, INTEGER, INTEGER);
 DROP FUNCTION IF EXISTS  get_serial_played(INTEGER);
 DROP FUNCTION IF EXISTS  get_serials_in_genres_counts();
+DROP FUNCTION IF EXISTS get_actor_by_id(INTEGER);
+DROP FUNCTION IF EXISTS get_director_by_id(INTEGER);
+DROP FUNCTION IF EXISTS get_writer_by_id(INTEGER);
+DROP FUNCTION IF EXISTS get_filtered_actors(CHAR);
+DROP FUNCTION IF EXISTS get_filtered_directors(CHAR);
+DROP FUNCTION IF EXISTS get_filtered_writers(CHAR);
+DROP FUNCTION IF EXISTS get_top5_best_actor_episodes(INTEGER);
+DROP FUNCTION IF EXISTS get_top5_best_director_episodes(INTEGER);
+DROP FUNCTION IF EXISTS get_top5_best_writer_episodes(INTEGER);
 
 CREATE OR REPLACE FUNCTION get_season_date(_serial_id INTEGER, _season_number INTEGER)
   RETURNS DATE AS
@@ -143,9 +152,9 @@ CREATE OR REPLACE FUNCTION get_duration_of(_serial_id INTEGER, _season_number IN
  LANGUAGE sql;
 
 CREATE OR REPLACE FUNCTION get_episode_directors_names(_serial_id INTEGER, _season_number INTEGER, _episode_number INTEGER) RETURNS
- TABLE(director_name CHAR) AS
+ TABLE(director_id INTEGER, director_name CHAR) AS
  $BODY$
-    SELECT p.name
+    SELECT p.person_id, p.name
     FROM episode e NATURAL JOIN directs NATURAL JOIN director d JOIN person p ON p.person_id = d.director_id
     WHERE e.serial_id = $1 AND e.season_number = $2 AND e.episode_number = $3;
  $BODY$
@@ -153,20 +162,20 @@ CREATE OR REPLACE FUNCTION get_episode_directors_names(_serial_id INTEGER, _seas
 
 
 CREATE OR REPLACE FUNCTION get_episode_writers_names(_serial_id INTEGER, _season_number INTEGER, _episode_number INTEGER) RETURNS
- TABLE(writer_name CHAR) AS
+ TABLE(writer_id INTEGER, writer_name CHAR) AS
  $BODY$
-    SELECT p.name
+    SELECT p.person_id, p.name
     FROM episode e NATURAL JOIN writes NATURAL JOIN writer w JOIN person p ON p.person_id = w.writer_id
     WHERE e.serial_id = $1 AND e.season_number = $2 AND e.episode_number = $3;
  $BODY$
  LANGUAGE sql;
 
 CREATE OR REPLACE FUNCTION get_episode_played(_serial_id INTEGER, _season_number INTEGER, _episode_number INTEGER) RETURNS
- TABLE(actor_name CHAR, role_title CHAR, award_title CHAR, award_year INTEGER) AS
+ TABLE(actor_id INTEGER, actor_name CHAR, role_title CHAR, award_title CHAR, award_year INTEGER) AS
  $BODY$
-   SELECT temp.actor_name, temp.role_title, rha.award_title, rha.year
+   SELECT temp.actor_id, temp.actor_name, temp.role_title, rha.award_title, rha.year
    FROM episode e NATURAL JOIN films NATURAL JOIN plays
-     NATURAL JOIN (SELECT r.title role_title, p.name actor_name, pl.played_id played_id
+     NATURAL JOIN (SELECT r.title role_title, p.name actor_name, pl.played_id played_id, a.actor_id actor_id
                    FROM plays pl NATURAL JOIN role r NATURAL JOIN actor a JOIN person p ON a.actor_id = p.person_id) temp
      LEFT JOIN role_has_award rha ON temp.played_id = rha.played_id
                                      AND rha.serial_id = $1 AND rha.season_number = $2 AND rha.episode_number = $3
@@ -176,16 +185,16 @@ CREATE OR REPLACE FUNCTION get_episode_played(_serial_id INTEGER, _season_number
 
 --All played roles with awards (if awards exist) for the serial with _serial_id
 CREATE OR REPLACE FUNCTION get_serial_played(_serial_id INTEGER) RETURNS
-TABLE(actor_name CHAR, role_title CHAR, award_title CHAR, award_year INTEGER) AS
+TABLE(actor_id INTEGER, actor_name CHAR, role_title CHAR, award_title CHAR, award_year INTEGER) AS
   $BODY$
-    SELECT temp.actor_name, temp.role_title, rha.award_title, rha.year
+    SELECT temp.actor_id, temp.actor_name, temp.role_title, rha.award_title, rha.year
    FROM episode e NATURAL JOIN films NATURAL JOIN plays
-     NATURAL JOIN (SELECT r.title role_title, p.name actor_name, pl.played_id played_id
+     NATURAL JOIN (SELECT r.title role_title, p.name actor_name, pl.played_id played_id, a.actor_id actor_id
                    FROM plays pl NATURAL JOIN role r NATURAL JOIN actor a JOIN person p ON a.actor_id = p.person_id) temp
      LEFT JOIN role_has_award rha ON temp.played_id = rha.played_id
                                      AND rha.serial_id = $1
    WHERE e.serial_id = $1
-    GROUP BY temp.actor_name, temp.role_title, rha.award_title, rha.year
+    GROUP BY temp.actor_id, temp.actor_name, temp.role_title, rha.award_title, rha.year
     ORDER BY temp.actor_name, rha.year, rha.award_title;
   $BODY$
 LANGUAGE sql;
@@ -217,3 +226,99 @@ $BODY$
   WHERE r.serial_id = $1;
 $BODY$
 LANGUAGE sql;
+
+
+CREATE OR REPLACE FUNCTION get_actor_by_id(_actor_id INTEGER) RETURNS
+TABLE(person_name CHAR, person_gender CHAR, person_birth_date DATE) AS
+$BODY$
+  SELECT p.name, p.genger, p.birthdate
+  FROM actor a INNER JOIN person p ON p.person_id = a.actor_id
+  WHERE a.actor_id = _actor_id;
+$BODY$
+LANGUAGE sql;
+
+CREATE OR REPLACE FUNCTION get_director_by_id(_director_id INTEGER) RETURNS
+TABLE(person_name CHAR, person_gender CHAR, person_birth_date DATE) AS
+$BODY$
+  SELECT p.name, p.genger, p.birthdate
+  FROM director d INNER JOIN person p ON p.person_id = d.director_id
+  WHERE d.director_id = _director_id;
+$BODY$
+LANGUAGE sql;
+
+CREATE OR REPLACE FUNCTION get_writer_by_id(_writer_id INTEGER) RETURNS
+TABLE(person_name CHAR, person_gender CHAR, person_birth_date DATE) AS
+$BODY$
+  SELECT p.name, p.genger, p.birthdate
+  FROM writer w INNER JOIN person p ON p.person_id = w.writer_id
+  WHERE w.writer_id = _writer_id;
+$BODY$
+LANGUAGE sql;
+
+CREATE OR REPLACE FUNCTION get_filtered_actors(_name_part CHAR) RETURNS
+TABLE(person_id INTEGER, person_name CHAR, person_gender CHAR, person_birth_date DATE) AS
+$BODY$
+  SELECT p.person_id, p.name, p.genger, p.birthdate
+  FROM actor a INNER JOIN person p ON p.person_id = a.actor_id
+  WHERE lower(p.name) LIKE ('%' || lower(_name_part) || '%');
+$BODY$
+LANGUAGE sql;
+
+CREATE OR REPLACE FUNCTION get_filtered_directors(_name_part CHAR) RETURNS
+TABLE(person_id INTEGER, person_name CHAR, person_gender CHAR, person_birth_date DATE) AS
+$BODY$
+  SELECT p.person_id, p.name, p.genger, p.birthdate
+  FROM director d INNER JOIN person p ON p.person_id = d.director_id
+  WHERE lower(p.name) LIKE ('%' || lower(_name_part) || '%');
+$BODY$
+LANGUAGE sql;
+
+CREATE OR REPLACE FUNCTION get_filtered_writers(_name_part CHAR) RETURNS
+TABLE(person_id INTEGER, person_name CHAR, person_gender CHAR, person_birth_date DATE) AS
+$BODY$
+  SELECT p.person_id, p.name, p.genger, p.birthdate
+  FROM writer w INNER JOIN person p ON p.person_id = w.writer_id
+  WHERE lower(p.name) LIKE ('%' || lower(_name_part) || '%');
+$BODY$
+LANGUAGE sql;
+CREATE OR REPLACE FUNCTION get_top5_best_actor_episodes(_person_id INTEGER)
+  RETURNS TABLE (release_date DATE, episode_title CHARACTER, serial_title CHARACTER, rating INTEGER,
+    episode_number INTEGER, season_number INTEGER, serial_id INTEGER) AS $$
+BEGIN
+  RETURN QUERY SELECT e.release_date release_date, e.title episode_title, s.title serial_title, e.rating, e.episode_number, e.season_number, e.serial_id
+                 FROM episode e NATURAL JOIN films NATURAL JOIN plays pl JOIN role r ON r.role_id = pl.role_id
+                   NATURAL JOIN actor a JOIN person p ON a.actor_id = p.person_id JOIN serial s ON e.serial_id = s.serial_id
+                 WHERE p.person_id = _person_id
+GROUP BY s.title, e.title, r.title, e.rating, e.release_date, e.episode_number, e.season_number, e.serial_id
+ORDER BY e.rating DESC, s.title, e.title
+LIMIT 5;
+END
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION get_top5_best_director_episodes(_person_id INTEGER)
+  RETURNS TABLE (release_date DATE, episode_title CHARACTER, serial_title CHARACTER, rating INTEGER,
+    episode_number INTEGER, season_number INTEGER, serial_id INTEGER) AS $$
+BEGIN
+  RETURN QUERY SELECT e.release_date release_date, e.title episode_title, s.title serial_title, e.rating, e.episode_number, e.season_number, e.serial_id
+                 FROM episode e NATURAL JOIN films NATURAL JOIN plays pl JOIN role r ON r.role_id = pl.role_id
+                   NATURAL JOIN director d JOIN person p ON d.director_id = p.person_id JOIN serial s ON e.serial_id = s.serial_id
+                 WHERE p.person_id = _person_id
+GROUP BY s.title, e.title, r.title, e.rating, e.release_date, e.episode_number, e.season_number, e.serial_id
+ORDER BY e.rating DESC, s.title, e.title
+LIMIT 5;
+END
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION get_top5_best_writer_episodes(_person_id INTEGER)
+  RETURNS TABLE (release_date DATE, episode_title CHARACTER, serial_title CHARACTER, rating INTEGER,
+    episode_number INTEGER, season_number INTEGER, serial_id INTEGER) AS $$
+BEGIN
+  RETURN QUERY SELECT e.release_date release_date, e.title episode_title, s.title serial_title, e.rating, e.episode_number, e.season_number, e.serial_id
+                 FROM episode e NATURAL JOIN films NATURAL JOIN plays pl JOIN role r ON r.role_id = pl.role_id
+                   NATURAL JOIN writer w JOIN person p ON w.writer_id = p.person_id JOIN serial s ON e.serial_id = s.serial_id
+                 WHERE p.person_id = _person_id
+GROUP BY s.title, e.title, r.title, e.rating, e.release_date, e.episode_number, e.season_number, e.serial_id
+ORDER BY e.rating DESC, s.title, e.title
+LIMIT 5;
+END
+$$ LANGUAGE plpgsql;

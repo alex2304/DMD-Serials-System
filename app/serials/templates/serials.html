@@ -18,13 +18,6 @@
             {% endfor %}
         ];
 
-{#        var linked_words = $.extend(true, [], basic_words);#}
-{#        linked_words.splice(0, 3,#}
-{#                {text: "Action", weight: 13, link: 'http://github.com/mistic100/jQCloud'},#}
-{#                {text: "Comedy", weight: 10.5, link: 'http://www.strangeplanet.fr'},#}
-{#                {text: "Fantasy", weight: 9.4, link: 'http://piwigo.org'}#}
-{#        );#}
-
         $(function () {
             $('#genres').jQCloud(basic_words);
         });
@@ -34,7 +27,7 @@
             $('#serials').DataTable({
                 "paging": false,
                 "searching": false,
-                "info": false,
+                "info": false
             });
         });
 
@@ -44,19 +37,19 @@
             var yearSlider = $("#inputYear").slider({
                 "range": true,
                 "min": 1900,
-                "max": 2016,
+                "max": 2016
             });
 
             var ratingSlider = $("#inputRating").slider({
                 "range": true,
                 "min": 1.0,
-                "max": 10.0,
+                "max": 10.0
             });
 
             var durationSlider = $("#inputDuration").slider({
                 "range": true,
                 "min": 0,
-                "max": 1000,
+                "max": 1000
             });
         });
 
@@ -91,7 +84,7 @@
                         <input name="inputYear" id="inputYear" type="text" class="form-control"/>
                     </div>
                     <div class="col-sm-6">
-                        <label for="" class="control-label">Actors (comma separated)</label>
+                        <label for="inputActor" class="control-label">Actors (comma separated)</label>
                         <input name="inputActor" id="inputActor" type="text" class="form-control"/>
                     </div>
                 </div>

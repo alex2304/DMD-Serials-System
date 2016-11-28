@@ -37,7 +37,7 @@
                     <tbody>
                     {% for p in serial_played %}
                         <tr>
-                            <td><a href="/actors/{{ "1" }}">{{ p.actor_name }}</a></td>
+                            <td><a href="{{ url_for('persons.process_actors', actor_id=p.actor_id) }}">{{ p.actor_name }}</a></td>
                             <td>{{ p.role_title }}</td>
                             {% if p.award_title and p.award_year %}
                                 <td>{{ "%s (%s)" % (p.award_title, p.award_year) }}</td>

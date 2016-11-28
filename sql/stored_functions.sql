@@ -1,3 +1,4 @@
+DROP FUNCTION IF EXISTS is_string_matches_any(CHAR, CHAR[]);
 DROP FUNCTION IF EXISTS get_season_date(INTEGER, INTEGER);
 DROP FUNCTION IF EXISTS  get_rating_of(INTEGER);
 DROP FUNCTION IF EXISTS  get_rating_of(INTEGER, INTEGER);
@@ -15,6 +16,8 @@ DROP FUNCTION IF EXISTS  get_episode_writers_names(INTEGER, INTEGER, INTEGER);
 DROP FUNCTION IF EXISTS  get_episode_played(INTEGER, INTEGER, INTEGER);
 DROP FUNCTION IF EXISTS  get_serial_played(INTEGER);
 DROP FUNCTION IF EXISTS  get_serials_in_genres_counts();
+DROP FUNCTION IF EXISTS get_reviews_of(INTEGER);
+DROP FUNCTION IF EXISTS get_comments_of(INTEGER, INTEGER);
 DROP FUNCTION IF EXISTS get_actor_by_id(INTEGER);
 DROP FUNCTION IF EXISTS get_director_by_id(INTEGER);
 DROP FUNCTION IF EXISTS get_writer_by_id(INTEGER);
@@ -24,6 +27,22 @@ DROP FUNCTION IF EXISTS get_filtered_writers(CHAR);
 DROP FUNCTION IF EXISTS get_top5_best_actor_episodes(INTEGER);
 DROP FUNCTION IF EXISTS get_top5_best_director_episodes(INTEGER);
 DROP FUNCTION IF EXISTS get_top5_best_writer_episodes(INTEGER);
+
+CREATE OR REPLACE FUNCTION is_string_matches_any(_string CHAR, _other_strings CHAR[]) RETURNS BOOL AS
+$BODY$
+DECLARE
+  s TEXT;
+BEGIN
+    FOREACH s IN ARRAY _other_strings
+    LOOP
+        IF lower(_string) LIKE lower(s || '%') THEN
+          RETURN TRUE;
+        END IF;
+    END LOOP;
+    RETURN FALSE;
+END
+$BODY$
+LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION get_season_date(_serial_id INTEGER, _season_number INTEGER)
   RETURNS DATE AS
@@ -227,6 +246,23 @@ $BODY$
 $BODY$
 LANGUAGE sql;
 
+CREATE OR REPLACE FUNCTION get_comments_of(_serial_id INTEGER, _season_number INTEGER) RETURNS
+TABLE(comment_text CHAR, comment_date DATE, user_login CHAR) AS
+$BODY$
+  SELECT c.text, c.comment_date, c.app_user_login
+  FROM comments c
+  WHERE c.serial_id = $1 AND c.season_number = $2;
+$BODY$
+LANGUAGE sql;
+
+CREATE OR REPLACE FUNCTION get_reviews_of(_serial_id INTEGER) RETURNS
+TABLE(title CHAR, review_text CHAR, review_date DATE, user_login CHAR) AS
+$BODY$
+  SELECT r.title, r.text, r.review_date, r.app_user_login
+  FROM reviews r
+  WHERE r.serial_id = $1;
+$BODY$
+LANGUAGE sql;
 
 CREATE OR REPLACE FUNCTION get_actor_by_id(_actor_id INTEGER) RETURNS
 TABLE(person_name CHAR, person_gender CHAR, person_birth_date DATE) AS

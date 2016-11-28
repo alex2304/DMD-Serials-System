@@ -1,10 +1,25 @@
+
+DROP VIEW IF EXISTS count_serials_by_genre;
+
+DROP VIEW IF EXISTS avg_episode_duration_for_serial;
+
+DROP VIEW IF EXISTS duration_of_each_serial;
+
+DROP VIEW IF EXISTS list_of_episodes_where_each_actor_played_and_role;
+
+DROP VIEW IF EXISTS roles_of_all_people_in_each_episode;
+
 DROP FUNCTION IF EXISTS insert_into_episode(CHARACTER, date, integer, integer, integer, integer, integer);
 
 DROP FUNCTION IF EXISTS insert_into_season(integer, integer);
 
 DROP FUNCTION IF EXISTS insert_into_serial(CHARACTER, INTEGER, CHARACTER);
 
+DROP FUNCTION IF EXISTS insert_into_serial(INTEGER, CHARACTER, INTEGER, CHARACTER);
+
 DROP FUNCTION IF EXISTS insert_into_person(CHARACTER, DATE, CHARACTER);
+
+DROP FUNCTION IF EXISTS insert_into_person(INTEGER, CHARACTER, DATE, CHARACTER);
 
 DROP FUNCTION IF EXISTS insert_into_director(INTEGER);
 
@@ -28,6 +43,8 @@ DROP FUNCTION IF EXISTS insert_into_app_user(CHARACTER, INTEGER, CHARACTER);
 
 DROP FUNCTION IF EXISTS insert_into_comments(DATE, CHARACTER, CHARACTER, INTEGER, INTEGER);
 
+DROP FUNCTION IF EXISTS insert_into_comments(CHARACTER, CHARACTER, INTEGER, INTEGER);
+
 DROP FUNCTION IF EXISTS insert_into_creates(INTEGER, INTEGER);
 
 DROP FUNCTION IF EXISTS insert_into_directs(INTEGER, INTEGER, INTEGER, INTEGER);
@@ -39,6 +56,8 @@ DROP FUNCTION IF EXISTS insert_into_genre(CHARACTER);
 DROP FUNCTION IF EXISTS insert_into_plays(INTEGER, INTEGER);
 
 DROP FUNCTION IF EXISTS insert_into_reviews(CHARACTER, INTEGER, CHARACTER, CHARACTER, DATE);
+
+DROP FUNCTION IF EXISTS insert_into_reviews(CHARACTER, INTEGER, CHARACTER, CHARACTER);
 
 DROP FUNCTION IF EXISTS insert_into_role(CHARACTER);
 

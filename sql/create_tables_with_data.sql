@@ -3,6 +3,7 @@ CREATE TABLE serial (
   title CHAR(100) NOT NULL,
   release_year INTEGER NOT NULL,
   country CHAR(50) NOT NULL,
+  rating NUMERIC DEFAULT 0,
 
   CONSTRAINT year_must_be_less_or_equal_than_now_and_grater_1948
   CHECK (release_year >= 1949 AND release_year <= extract(YEAR FROM current_date))
@@ -16,6 +17,7 @@ CREATE TABLE serial_has_genre (
   serial_id INTEGER,
   genre_title CHAR(50),
 
+  PRIMARY KEY (serial_id, genre_title),
   FOREIGN KEY (serial_id) REFERENCES serial (serial_id) ON DELETE CASCADE ON UPDATE CASCADE,
   FOREIGN KEY (genre_title) REFERENCES genre (genre_title) ON DELETE NO ACTION ON UPDATE CASCADE
 );
@@ -53,6 +55,7 @@ CREATE TABLE reviews (
 CREATE TABLE season (
   season_number INTEGER NOT NULL,
   serial_id INTEGER NOT NULL,
+  rating NUMERIC DEFAULT 0,
 
   PRIMARY KEY (season_number, serial_id),
   FOREIGN KEY (serial_id) REFERENCES serial(serial_id) ON DELETE CASCADE ON UPDATE CASCADE,
@@ -102,7 +105,8 @@ CREATE TABLE writer (
 );
 
 CREATE TABLE creator (
-  creator_id INTEGER REFERENCES person (person_id) PRIMARY KEY
+  creator_id INTEGER REFERENCES person (person_id) PRIMARY KEY,
+  rating NUMERIC DEFAULT 0
 );
 
 CREATE TABLE actor (
@@ -572,6 +576,69 @@ CREATE OR REPLACE FUNCTION insert_into_reviews(app_user_login CHAR(20), serial_i
   END;
 $$ LANGUAGE plpgsql;
 
+--------------------------------------------------------
+------------------------TRIGGERS------------------------
+--------------------------------------------------------
+--DROP TRIGGER after_insert_into_episode ON episode;
+--DROP FUNCTION update_creator_serial_season_rating();
+CREATE OR REPLACE FUNCTION update_creator_serial_season_rating() RETURNS TRIGGER AS $$
+DECLARE
+  _serial_id INTEGER;
+  _season_number INTEGER;
+  _rating INTEGER;
+  creat creator%ROWTYPE;
+BEGIN
+  _serial_id = new.serial_id;
+  _season_number = new.season_number;
+  _rating = new.rating;
+  -- primary key => index
+  UPDATE serial SET rating = (SELECT avg(e.rating) FROM episode e
+                              WHERE e.serial_id = _serial_id
+                              GROUP BY e.serial_id)
+                WHERE serial_id = _serial_id;
+  UPDATE season SET rating = (SELECT avg(e.rating) FROM episode e
+                              WHERE e.serial_id = _serial_id AND e.season_number = _season_number
+                              GROUP BY e.serial_id, e.season_number)
+                WHERE serial_id = _serial_id AND season_number = _season_number;
+  --updates only if episodes added later than creators
+  FOR creat IN SELECT * FROM creator LOOP
+    UPDATE creator
+    SET rating = (SELECT avg(s.rating) FROM serial s NATURAL JOIN creates c1
+                                        WHERE c1.creator_id = creat.creator_id
+                                        GROUP BY c1.creator_id)
+    WHERE creator_id = creat.creator_id;
+  END LOOP;
+
+  RETURN new;
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE FUNCTION update_creator_rating() RETURNS TRIGGER AS $$
+DECLARE
+  _creator_id INTEGER;
+BEGIN
+  _creator_id = new.creator_id;
+  --updates only if episodes adeed earlier than creators
+  UPDATE creator SET rating = (SELECT avg(s.rating) FROM serial s NATURAL JOIN creates c1
+                                WHERE c1.creator_id = _creator_id
+                                GROUP BY c1.creator_id)
+                WHERE creator_id = _creator_id;
+  RETURN new;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER after_insert_into_episode
+  AFTER INSERT OR UPDATE OR DELETE ON episode for EACH ROW
+  EXECUTE PROCEDURE update_creator_serial_season_rating();
+
+CREATE TRIGGER after_insert_into_creates
+  AFTER INSERT ON creates for EACH ROW
+  EXECUTE PROCEDURE update_creator_rating();
+
+-------------------------------------------------------------
+-----------------------TEST DATA-----------------------------
+-------------------------------------------------------------
 
 --serials
 SELECT insert_into_serial('University comedy', 2001, 'Russia');
@@ -810,3 +877,44 @@ SELECT insert_into_reviews('sobaka', 1, 'could be better', 'My sister recommends
 SELECT insert_into_comments('2016-02-02', 'Where is Michael? He is pretty good.', 'paprika', 1, 1);
 SELECT insert_into_comments('2016-02-03', 'He has broken his leg.', 'foreach', 1, 1);
 SELECT insert_into_comments('2016-02-04', 'Oh, I can not believe it!', 'paprika', 1, 1);
+
+-------------------------------------------------------
+---------------------STATISTICS------------------------
+-------------------------------------------------------
+--list of episodes at serial where every actor played and role
+CREATE OR REPLACE VIEW list_of_episodes_where_each_actor_played_and_role AS
+  SELECT p.name actor_name, r.title role_name, e.rating, e.episode_number, e.season_number, e.serial_id, e.title episode_title, s.title serial_title, a.actor_id, r.role_id
+  FROM episode e NATURAL JOIN films NATURAL JOIN plays pl JOIN role r ON r.role_id = pl.role_id
+    NATURAL JOIN actor a JOIN person p ON a.actor_id = p.person_id JOIN serial s ON e.serial_id = s.serial_id
+  GROUP BY s.title, e.season_number, e.episode_number, e.title, r.title, p.name, e.rating, e.serial_id, a.actor_id, r.role_id
+  ORDER BY s.title, e.title, p.name;
+
+
+CREATE OR REPLACE VIEW roles_of_all_people_in_each_episode AS
+  SELECT ser.title serial_title, ep.season_number season_number, ep.title episode_title, p.name person_name, 'director' role_in_serial
+  FROM person p JOIN director d ON p.person_id = d.director_id NATURAL JOIN Directs NATURAL JOIN episode ep JOIN serial ser ON ep.serial_id = ser.serial_id
+  UNION
+  SELECT ser.title, ep.season_number, ep.title, p.name, 'writer' role_in_serial
+  FROM person p JOIN writer w ON p.person_id = w.writer_id NATURAL JOIN Writes NATURAL JOIN episode ep JOIN serial ser ON ep.serial_id = ser.serial_id
+  UNION
+  SELECT ser.title, ep.season_number, ep.title, p.name, 'actor' role_in_serial
+  FROM person p JOIN actor a ON p.person_id = a.actor_id NATURAL JOIN plays NATURAL JOIN films NATURAL JOIN episode ep JOIN serial ser ON ep.serial_id = ser.serial_id
+  ORDER BY 1, 2, 3, 4;
+
+CREATE OR REPLACE VIEW avg_episode_duration_for_serial AS
+  SELECT s.title, AVG(e.duration) AS episode_duration
+  FROM serial s JOIN episode e ON e.serial_id = s.serial_id
+  GROUP BY s.title;
+
+CREATE OR REPLACE VIEW count_serials_by_genre AS
+  SELECT g.genre_title, COUNT(*)
+  FROM genre g NATURAL JOIN serial_has_genre shg
+  GROUP BY g.genre_title;
+
+CREATE OR REPLACE VIEW duration_of_each_serial AS
+  SELECT s.title, sum(e.duration) serial_duration, s.serial_id
+  FROM episode e JOIN serial s USING (serial_id)
+  GROUP BY s.title, s.serial_id;
+
+CREATE INDEX serial_title_ind ON serial (title BPCHAR_PATTERN_OPS);
+CREATE INDEX person_name_ind ON person (name BPCHAR_PATTERN_OPS);

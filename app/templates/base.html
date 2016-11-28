@@ -26,12 +26,23 @@
                 <a class="navbar-brand" href="/">Amazing serial system</a>
             </div>
             <ul class="nav navbar-nav navbar-right">
-                <li><a href="/serials">Serials</a></li>
-                <li><a href="">Actors</a></li>
-                <li><a href="">Writers</a></li>
-                <li><a href="">Directors</a></li>
-                <li><a href="/statistics">Statistic</a></li>
+                <li {% if request.endpoint == "serials.process_serials" %} class='active' {% endif %}>
+                    <a href="{{ url_for("serials.process_serials") }}">Serials</a>
+                </li>
+                <li {% if request.endpoint == 'persons.process_actors' %} class='active' {% endif %}>
+                    <a href="{{ url_for('persons.process_actors') }}">Actors</a>
+                </li>
+                <li {% if request.endpoint == 'persons.process_writers' %} class='active' {% endif %}>
+                    <a href="{{ url_for('persons.process_writers') }}">Writers</a>
+                </li>
+                <li {% if request.endpoint == 'persons.process_directors' %} class='active' {% endif %}>
+                    <a href="{{ url_for('persons.process_directors') }}">Directors</a>
+                </li>
+                <li {% if request.endpoint == 'statistics.process_statistics' %} class='active' {% endif %}>
+                    <a href="{{ url_for('statistics.process_statistics') }}">Statistic</a>
+                </li>
                 <li><a href="">Login</a></li>
+
             </ul>
         </div><!--/.nav-collapse -->
     </nav>

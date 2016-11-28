@@ -1,16 +1,16 @@
-DROP FUNCTION count_serials_by_genre();
-DROP FUNCTION get_avg_episode_duration_for_serial();
-DROP FUNCTION get_ranked_serials_with_no_less_5_seasons_where_no_more_10_episodes_have_rating_less_5();
-DROP FUNCTION get_top_5_serials_in_each_genre();
-DROP FUNCTION get_list_of_episodes_where_each_actor_played_and_role();
-DROP FUNCTION get_top10_rated_episodes_for_the_actor(CHARACTER);
-DROP FUNCTION get_roles_of_all_people_in_each_episode();
-DROP FUNCTION get_roles_of_all_people_for_the_one_episode(CHAR, INTEGER, CHAR);
-DROP FUNCTION get_top5_serials_with_longest_average_episode();
-DROP FUNCTION get_top5_serials_in_genre(CHAR);
-DROP FUNCTION get_actor_roles(CHAR);
-DROP FUNCTION get_shortest_serials_in_genres(CHAR[]);
-DROP FUNCTION get_top5_creators();
+DROP FUNCTION IF EXISTS count_serials_by_genre();
+DROP FUNCTION IF EXISTS get_avg_episode_duration_for_serial();
+DROP FUNCTION IF EXISTS get_ranked_serials_with_no_less_5_seasons_where_no_more_10_episodes_have_rating_less_5();
+DROP FUNCTION IF EXISTS get_top_5_serials_in_each_genre();
+DROP FUNCTION IF EXISTS get_list_of_episodes_where_each_actor_played_and_role();
+DROP FUNCTION IF EXISTS get_top10_rated_episodes_for_the_actor(CHARACTER);
+DROP FUNCTION IF EXISTS get_roles_of_all_people_in_each_episode();
+DROP FUNCTION IF EXISTS get_roles_of_all_people_for_the_one_episode(CHAR, INTEGER, CHAR);
+DROP FUNCTION IF EXISTS get_top5_serials_with_longest_average_episode();
+DROP FUNCTION IF EXISTS get_top5_serials_in_genre(CHAR);
+DROP FUNCTION IF EXISTS get_actor_roles(CHAR);
+DROP FUNCTION IF EXISTS get_shortest_serials_in_genres(CHAR[]);
+DROP FUNCTION IF EXISTS get_top5_creators();
 
 CREATE OR REPLACE FUNCTION count_serials_by_genre() RETURNS TABLE (genre CHARACTER, number_of_serials BIGINT) AS $$
   BEGIN

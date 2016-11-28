@@ -1,20 +1,20 @@
-DROP FUNCTION get_season_date(INTEGER, INTEGER);
-drop FUNCTION get_rating_of(INTEGER);
-drop FUNCTION get_rating_of(INTEGER, INTEGER);
-drop FUNCTION get_genres_of_serial_titles(INTEGER);
-drop FUNCTION get_actors_names_of(INTEGER);
-drop FUNCTION get_actors_names_of(INTEGER, INTEGER);
-DROP FUNCTION get_filtered_serials(CHAR, integer, integer, NUMERIC,NUMERIC, CHAR[],CHAR[],CHAR[], INTEGER, INTEGER);
-DROP FUNCTION get_seasons_of_serial(INTEGER);
-DROP FUNCTION get_serial_awards(INTEGER);
-DROP FUNCTION get_creators_of_serial_names(INTEGER);
-DROP FUNCTION get_duration_of(INTEGER, INTEGER);
-DROP FUNCTION get_duration_of(INTEGER);
-DROP FUNCTION get_episode_directors_names(INTEGER, INTEGER, INTEGER);
-DROP FUNCTION get_episode_writers_names(INTEGER, INTEGER, INTEGER);
-DROP FUNCTION get_episode_played(INTEGER, INTEGER, INTEGER);
-DROP FUNCTION get_serial_played(INTEGER);
-DROP FUNCTION get_serials_in_genres_counts();
+DROP FUNCTION IF EXISTS get_season_date(INTEGER, INTEGER);
+DROP FUNCTION IF EXISTS  get_rating_of(INTEGER);
+DROP FUNCTION IF EXISTS  get_rating_of(INTEGER, INTEGER);
+DROP FUNCTION IF EXISTS  get_genres_of_serial_titles(INTEGER);
+DROP FUNCTION IF EXISTS  get_actors_names_of(INTEGER);
+DROP FUNCTION IF EXISTS  get_actors_names_of(INTEGER, INTEGER);
+DROP FUNCTION IF EXISTS  get_filtered_serials(CHAR, integer, integer, NUMERIC,NUMERIC, CHAR[],CHAR[],CHAR[], INTEGER, INTEGER);
+DROP FUNCTION IF EXISTS  get_seasons_of_serial(INTEGER);
+DROP FUNCTION IF EXISTS  get_serial_awards(INTEGER);
+DROP FUNCTION IF EXISTS  get_creators_of_serial_names(INTEGER);
+DROP FUNCTION IF EXISTS  get_duration_of(INTEGER, INTEGER);
+DROP FUNCTION IF EXISTS  get_duration_of(INTEGER);
+DROP FUNCTION IF EXISTS  get_episode_directors_names(INTEGER, INTEGER, INTEGER);
+DROP FUNCTION IF EXISTS  get_episode_writers_names(INTEGER, INTEGER, INTEGER);
+DROP FUNCTION IF EXISTS  get_episode_played(INTEGER, INTEGER, INTEGER);
+DROP FUNCTION IF EXISTS  get_serial_played(INTEGER);
+DROP FUNCTION IF EXISTS  get_serials_in_genres_counts();
 
 CREATE OR REPLACE FUNCTION get_season_date(_serial_id INTEGER, _season_number INTEGER)
   RETURNS DATE AS
@@ -104,7 +104,7 @@ CREATE OR REPLACE FUNCTION get_filtered_serials(title_part CHAR, start_year INTE
     AND get_rating_of(s.serial_id) <@ NUMRANGE(start_rating, end_rating + 1) -- rating matching
     AND (countries IS NULL or ARRAY[s.country] && countries)                             -- countries matching
     AND (actors is NULL or EXISTS(
-        SELECT actor_name FROM get_actors_of_serial_names(s.serial_id) act
+        SELECT actor_name FROM get_actors_names_of(s.serial_id) act
         WHERE act.actor_name = ANY(actors)))
     AND (genres is NULL or EXISTS(
         SELECT genre_title FROM get_genres_of_serial_titles(s.serial_id) genr

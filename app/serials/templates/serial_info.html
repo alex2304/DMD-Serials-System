@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+    <link href="{{ url_for('static', filename='serials_info.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+
+    <div class="container">
+
+        <div class="row">
+            <div class="col-md-3">
+                <img class="img-responsive" src="{{ url_for('static', filename='images/360x512.png') }}" alt="">
+            </div>
+            <div class="col-md-9">
+                <h3 class="text-center">{{ serial_info.title }}</h3>
+                <div><span><b>Country:</b> {{ serial_info.country }}</span></div>
+                <div><span><b>Year:</b> {{ serial_info.release_year }}</span></div>
+                <div><span><b>Creators:</b> {{ ", ".join(serial_info.creators_names) }}</span></div>
+                <div><span><b>Actors:</b> {{ ", ".join(serial_info.actors_names) }}</span></div>
+                <div><span><b>Genres:</b> {{ ", ".join(serial_info.genres_titles) }}</span></div>
+                <div><span><b>Awards:</b> {{ ", ".join(serial_awards_list) }}</span></div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table table-striped">
+                    <caption class="text-left">Casts</caption>
+                    <thead>
+                    <tr>
+                        <th>Actor</th>
+                        <th>Role</th>
+                        <th>Awards</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for p in serial_played %}
+                        <tr>
+                            <td><a href="{{ url_for('persons.process_actors', actor_id=p.actor_id) }}">{{ p.actor_name }}</a></td>
+                            <td>{{ p.role_title }}</td>
+                            {% if p.award_title and p.award_year %}
+                                <td>{{ "%s (%s)" % (p.award_title, p.award_year) }}</td>
+                            {% else %}
+                                <td>-</td>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table table-striped">
+                    <caption class="text-left">Seasons</caption>
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Date</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for season_index in range(0, serial_info.seasons|length) %}
+                        <tr>
+                            <td><a href="{{ url_for('serials.process_serials', serial_id=serial_info.serial_id, season_number=serial_info.seasons[season_index].season_number) }}">{{ season_index + 1}}</a></td>
+                            <td>{{ serial_info.seasons[season_index].release_date }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+
+        <div class="row" id="submit-review">
+            <div class="col-md-12">
+                <div class="well">
+                    <form action="/serials/{{ serial_info.serial_id }}" method="post">
+                        <textarea class="form-control" cols="100" name="review"
+                                  placeholder="Begin Here..." rows="10"></textarea>
+
+                        <div class="text-right write-btn">
+                            <button class="btn btn-warning btn-lg" type="submit">
+                                <span class="glyphicon glyphicon-send"></span> Write a Review
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="review-caption">Reviews</div>
+
+
+        {% for r in reviews %}
+            <div class="row review">
+                <div class="col-md-2">
+                    <div><b>{{ r['username'] }}</b></div>
+                    <div>{{ r['date']  }}</div>
+                </div>
+                <div class="col-md-10">
+                    <b>{{ r['title'] }}</b><br>
+                    <i>{{ r['text'] }}</i>
+                </div>
+            </div>
+        {% endfor %}
+
+
+    </div>
+
+{% endblock %}

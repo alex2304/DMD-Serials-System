@@ -2,12 +2,14 @@ import os
 
 from flask import Flask
 from flask.ext.sqlalchemy import SQLAlchemy
+from sqlalchemy import create_engine
 
 """
     Building the app, registering blueprints
 """
 
 db = SQLAlchemy()
+db_engine = None
 
 
 def build_app(default_config_name):
@@ -23,9 +25,14 @@ def build_app(default_config_name):
 
     # Register instruments
     db.init_app(app)
+    global db_engine
+    db_engine = create_engine(app.config['SQLALCHEMY_DATABASE_URI'])
 
     # Register blueprints
-    from .main import main as main_blueprint
-    app.register_blueprint(main_blueprint, url_prefix='/')
-
+    from .serials import serials as serials_blueprint
+    app.register_blueprint(serials_blueprint, url_prefix='/')
+    from .persons import persons as persons_blueprint
+    app.register_blueprint(persons_blueprint, url_prefix='/persons')
+    from .statistic import statistics as statistics_blueprint
+    app.register_blueprint(statistics_blueprint, url_prefix='/statistics')
     return app

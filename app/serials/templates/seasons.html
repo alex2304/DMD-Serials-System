@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+    <link href="{{ url_for('static', filename='serials_info.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+
+    <div class="container">
+
+        <div class="row">
+            <div class="col-md-3">
+                <img class="img-responsive" src="{{ url_for('static', filename='images/360x512.png') }}" alt="">
+            </div>
+            <div class="col-md-9">
+                <h3 class="text-center">{{ "%s => Season #%s" % (serial_info.title, season_info.season_number)  }}</h3>
+                <div><span><b>Year:</b> {{ season_info.release_date }}</span></div>
+                <div><span><b>Actors:</b> {{ ", ".join(season_info.actors_names) }}</span></div>
+                <div><span><b>Rating:</b> {{ season_info.rating }}</span></div>
+                <div><span><b>Duration:</b> {{ season_info.duration }}</span></div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table table-striped">
+                    <caption class="text-left">Episodes</caption>
+                    <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Duration</th>
+                        <th>Title</th>
+                        <th>Date</th>
+                        <th>Rating</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for episode_index in range(0, season_info.episodes|length) %}
+                        <tr>
+                            <td><a href="{{ url_for('serials.process_serials',
+                                    serial_id=serial_info.serial_id,
+                                    season_number=season_info.season_number,
+                                    episode_number=season_info.episodes[episode_index].episode_number) }}">{{ episode_index + 1 }}</a></td>
+                            <td>{{ season_info.episodes[episode_index].duration }}</td>
+                            <td>{{ season_info.episodes[episode_index].title }}</td>
+                            <td>{{ season_info.episodes[episode_index].release_date }}</td>
+                            <td>{{ season_info.episodes[episode_index].rating }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+
+        <div class="row" id="submit-review">
+            <div class="col-md-12">
+                <div class="well">
+                    <form action="/seasons/{{ season_info.season_id }}" method="post">
+                        <textarea class="form-control" cols="100" name="review"
+                                  placeholder="Begin Here..." rows="10"></textarea>
+
+                        <div class="text-right write-btn">
+                            <button class="btn btn-warning btn-lg" type="submit">
+                                <span class="glyphicon glyphicon-send"></span> Write a Comment
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="review-caption">Comments</div>
+
+
+        {% for c in comments %}
+            <div class="row review">
+                <div class="col-md-2">
+                    <div><b>{{ c['username'] }}</b></div>
+                    <div>{{ c['date']  }}</div>
+                </div>
+                <div class="col-md-10">
+                    <i>{{ c['text'] }}</i>
+                </div>
+            </div>
+        {% endfor %}
+
+
+    </div>
+
+{% endblock %}

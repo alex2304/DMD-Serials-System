@@ -1,0 +1,228 @@
+{% extends "base.html" %}
+
+{% block extra_css %}
+    <link href="{{ url_for('static', filename='jqcloud/jqcloud.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='DataTables/datatables.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='bootstrap-slider/bootstrap-slider.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='statistics.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block extra_js %}
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#topForGenreBtn').on('click', function (e) {
+                var tbl = $("#topForGenreTbl").find('tbody');
+                tbl.parent().removeClass("hidden");
+                tbl.empty();
+                $.get("{{ url_for('statistics.process_statistics') }}", {top5_serials_in_genre: $('#inputGenre').val()})
+                        .done(function (data) {
+                            $.each(data, function (index, element) {
+                                tbl.append('<tr><td>' + (index + 1) + '</td><td>' + element["title"] + '</td><td>' + element["rating"] + '</td></tr>')
+                            });
+                        });
+                e.preventDefault();
+            });
+        });
+
+        $(document).ready(function () {
+            $('#topForActorBtn').on('click', function (e) {
+                var tbl = $("#topForActorTbl").find('tbody');
+                tbl.parent().removeClass("hidden");
+                tbl.empty();
+                $.get("{{ url_for('statistics.process_statistics') }}", {actor_roles: $('#inputActor').val()})
+                        .done(function (data) {
+                            $.each(data, function (index, element) {
+                                tbl.append('<tr><td>' + (index + 1) + '</td><td>' + element['serial_title'] + '</td><td>' + element['episode_title'] + '</td><td>' + element['role_name'] + '</td></tr>')
+                            });
+                        });
+                e.preventDefault();
+            });
+        });
+
+        $(document).ready(function () {
+            $('#topShortestBtn').on('click', function (e) {
+                var tbl = $("#topShortestTbl").find('tbody');
+                tbl.parent().removeClass("hidden");
+                tbl.empty();
+                $.get("{{ url_for('statistics.process_statistics') }}", {top5_shortest_serials_in_genres: $('#inputGenre2').val()})
+                        .done(function (data) {
+                            $.each(data, function (index, element) {
+                                tbl.append('<tr><td>' + (index + 1) + '</td><td>' + element['serial_title'] + '</td><td>' + element['duration'] + '</td></tr>')
+                            });
+                        });
+                e.preventDefault();
+            });
+        });
+    </script>
+
+{% endblock %}
+
+{% block content %}
+
+    <div class="container">
+        <table class="table table-condensed">
+            <caption>Top-5 the best creators by rating of their serials</caption>
+            <thead>
+            <th>Rank</th>
+            <th>Creator</th>
+            <th>Average serials' rating</th>
+            </thead>
+            <tbody>
+            {% for i in range(0, top5_creators|length) %}
+                <tr>
+                    <td>{{ i + 1 }}</td>
+                    <td>{{ top5_creators[i]['name'] }}</td>
+                    <td>{{ top5_creators[i]['rating'] }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+        <table class="table table-condensed">
+            <caption>Top-5 serials with shortest average episodes duration</caption>
+            <thead>
+            <th>Rank</th>
+            <th>Serial title</th>
+            <th>Average episodes length</th>
+            </thead>
+            <tbody>
+            {% for i in range(0, top5_longest_episodes|length) %}
+                <tr>
+                    <td>{{ i + 1 }}</td>
+                    <td>{{ top5_longest_episodes[i]['title'] }}</td>
+                    <td>{{ top5_longest_episodes[i]['avg_episode_length'] }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+
+        <form class="form-horizontal well" action="{{ url_for('statistics.process_statistics') }}" method="post">
+            <div class="text-center"><h4>Find top-5 serials in genre</h4></div>
+            <div class="form-group">
+                <div class="row">
+                    <label for="inputGenre" class="col-sm-2 control-label">Genre</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" name="top5_serials_in_genre" id="inputGenre" placeholder="Some genre">
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="text-center write-btn">
+                            <button class="btn btn-success search-genre-btn" id="topForGenreBtn">
+                                <span class="glyphicon glyphicon-search"></span> Search
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <table id="topForGenreTbl" class="table table-striped table-bordered hidden">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Title</th>
+                    <th>Rating</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for i in range(0, top5_serials_in_genre|length) %}
+                    <tr>
+                        <td>{{ i + 1 }}</td>
+                        <td>{{ top5_serials_in_genre[i]['title'] }}</td>
+                        <td>{{ top5_serials_in_genre[i]['rating'] }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </form>
+
+        <form class="form-horizontal well" action="{{ url_for('statistics.process_statistics') }}" method="post">
+            <div class="text-center"><h4>Find top-5 the shortest serials in genres</h4></div>
+            <div class="form-group">
+                <div class="row">
+                    <label for="inputGenre2" class="col-sm-2 control-label">Genre (comma separated)</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" name="top5_shortest_serials_in_genres" id="inputGenre2" placeholder="Some genres">
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="text-center write-btn">
+                            <button class="btn btn-success search-genre-btn" id="topShortestBtn">
+                                <span class="glyphicon glyphicon-search"></span> Search
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <table id="topShortestTbl" class="table table-striped table-bordered hidden">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Title</th>
+                    <th>Duration</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for i in range(0, top5_shortest_in_genres|length) %}
+                    <tr>
+                        <td>{{ i + 1 }}</td>
+                        <td>{{ top5_shortest_in_genres[i]['serial_title'] }}</td>
+                        <td>{{ top5_shortest_in_genres[i]['duration'] }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </form>
+
+
+
+        <form class="form-horizontal well" action="{{ url_for('statistics.process_statistics') }}" method="post">
+            <div class="text-center"><h4>Find all actor roles</h4></div>
+            <div class="form-group">
+                <div class="row">
+                    <label for="inputActor" class="col-sm-2 control-label">Actor</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" name="actor_roles" id="inputActor" placeholder="Actor name">
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="text-center write-btn">
+                            <button class="btn btn-success search-genre-btn" id="topForActorBtn">
+                                <span class="glyphicon glyphicon-search"></span> Search
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+            <table id="topForActorTbl" class="table table-striped table-bordered hidden">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Serial</th>
+                    <th>Episode</th>
+                    <th>Role</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for i in range(0, actor_roles|length) %}
+                    <tr>
+                        <td>{{ i + 1 }}</td>
+                        <td>{{ actor_roles[i]['serial_title'] }}</td>
+                        <td>{{ actor_roles[i]['episode_title'] }}</td>
+                        <td>{{ actor_roles[i]['role_name'] }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </form>
+
+    </div> <!-- /container -->
+{% endblock %}

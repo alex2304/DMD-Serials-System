@@ -3,6 +3,20 @@ from typing import List, Dict, Tuple
 
 
 class QueryHelper:
+
+    @classmethod
+    def get_sql_array(cls, values_list: List[any]) -> str:
+        """
+        Return 'array string' for sql from given list.
+        ['Vasya', 'Petya'] will produce "ARRAY['Vasya', 'Petya']"
+        [1, 2, 3] -> 'ARRAY[1, 2, 3]'
+        [] -> 'null'
+        :param values_list: list of values of any type
+        :return: 'range string'
+        """
+        values_list = list(map(lambda p: '\'' + p + '\'' if isinstance(p, str) else p, values_list))
+        return str('ARRAY[%s]' % ','.join(values_list)) if values_list is not None and len(values_list) > 0 else 'NULL'
+
     @classmethod
     def get_columns_list(cls, mapping: Table) -> List[str]:
         """

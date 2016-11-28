@@ -4,6 +4,6 @@
 
 from flask import Blueprint
 
-main = Blueprint(name='main', import_name=__name__, template_folder='templates')
+statistics = Blueprint(name='statistics', import_name=__name__, template_folder='templates')
 
 from . import routes

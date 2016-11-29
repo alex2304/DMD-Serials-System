@@ -127,16 +127,16 @@ CREATE OR REPLACE FUNCTION get_filtered_serials(title_part CHAR, start_year INTE
   TABLE(serial_id INTEGER, title CHAR, release_year INTEGER, country CHAR) AS
   $BODY$
     SELECT s.serial_id, s.title, s.release_year, s.country FROM serial s
-    WHERE lower(s.title) LIKE ('%' || lower(title_part) || '%')                   -- title matching
+    WHERE lower(s.title) LIKE (lower(title_part) || '%')                   -- title matching
     AND s.release_year <@ INT4RANGE(start_year, end_year + 1)                     -- year matching
     AND get_rating_of(s.serial_id) <@ NUMRANGE(start_rating, end_rating + 1) -- rating matching
     AND (countries IS NULL or ARRAY[s.country] && countries)                             -- countries matching
     AND (actors is NULL or EXISTS(
         SELECT actor_name FROM get_actors_names_of(s.serial_id) act
-        WHERE act.actor_name = ANY(actors)))
+        WHERE is_string_matches_any(act.actor_name,actors)))
     AND (genres is NULL or EXISTS(
         SELECT genre_title FROM get_genres_of_serial_titles(s.serial_id) genr
-        WHERE genr.genre_title = ANY(genres)))
+        WHERE is_string_matches_any(genr.genre_title, genres)))
     AND (start_duration is NULL or get_duration_of(s.serial_id) > start_duration)
     AND (end_duration is NULL or get_duration_of(s.serial_id) < end_duration);
   $BODY$
@@ -190,30 +190,26 @@ CREATE OR REPLACE FUNCTION get_episode_writers_names(_serial_id INTEGER, _season
  LANGUAGE sql;
 
 CREATE OR REPLACE FUNCTION get_episode_played(_serial_id INTEGER, _season_number INTEGER, _episode_number INTEGER) RETURNS
- TABLE(actor_id INTEGER, actor_name CHAR, role_title CHAR, award_title CHAR, award_year INTEGER) AS
+ TABLE(actor_name CHAR, role_title CHAR, award_title CHAR, award_year INTEGER) AS
  $BODY$
-   SELECT temp.actor_id, temp.actor_name, temp.role_title, rha.award_title, rha.year
-   FROM episode e NATURAL JOIN films NATURAL JOIN plays
-     NATURAL JOIN (SELECT r.title role_title, p.name actor_name, pl.played_id played_id, a.actor_id actor_id
-                   FROM plays pl NATURAL JOIN role r NATURAL JOIN actor a JOIN person p ON a.actor_id = p.person_id) temp
-     LEFT JOIN role_has_award rha ON temp.played_id = rha.played_id
+   SELECT temp.actor_name, temp.role_name, rha.award_title, rha.year
+   FROM list_of_episodes_where_each_actor_played_and_role temp NATURAL JOIN plays pl
+     LEFT JOIN role_has_award rha ON pl.played_id = rha.played_id
                                      AND rha.serial_id = $1 AND rha.season_number = $2 AND rha.episode_number = $3
-   WHERE e.serial_id = $1 AND e.season_number = $2 AND e.episode_number = $3;
+   WHERE temp.serial_id = $1 AND temp.season_number = $2 AND temp.episode_number = $3;
  $BODY$
  LANGUAGE sql;
 
 --All played roles with awards (if awards exist) for the serial with _serial_id
 CREATE OR REPLACE FUNCTION get_serial_played(_serial_id INTEGER) RETURNS
-TABLE(actor_id INTEGER, actor_name CHAR, role_title CHAR, award_title CHAR, award_year INTEGER) AS
+TABLE(actor_name CHAR, role_title CHAR, award_title CHAR, award_year INTEGER) AS
   $BODY$
-    SELECT temp.actor_id, temp.actor_name, temp.role_title, rha.award_title, rha.year
-   FROM episode e NATURAL JOIN films NATURAL JOIN plays
-     NATURAL JOIN (SELECT r.title role_title, p.name actor_name, pl.played_id played_id, a.actor_id actor_id
-                   FROM plays pl NATURAL JOIN role r NATURAL JOIN actor a JOIN person p ON a.actor_id = p.person_id) temp
-     LEFT JOIN role_has_award rha ON temp.played_id = rha.played_id
+    SELECT temp.actor_name, temp.role_name, rha.award_title, rha.year
+   FROM list_of_episodes_where_each_actor_played_and_role temp NATURAL JOIN plays pl
+     LEFT JOIN role_has_award rha ON pl.played_id = rha.played_id
                                      AND rha.serial_id = $1
-   WHERE e.serial_id = $1
-    GROUP BY temp.actor_id, temp.actor_name, temp.role_title, rha.award_title, rha.year
+   WHERE temp.serial_id = $1
+    GROUP BY temp.actor_name, temp.role_name, rha.award_title, rha.year
     ORDER BY temp.actor_name, rha.year, rha.award_title;
   $BODY$
 LANGUAGE sql;
@@ -222,9 +218,8 @@ LANGUAGE sql;
 CREATE OR REPLACE FUNCTION get_serials_in_genres_counts() RETURNS
 TABLE(genre_title CHAR,  serials_count BIGINT) AS
   $BODY$
-    SELECT g.genre_title, COUNT(*)
-    FROM genre g NATURAL JOIN serial_has_genre shg
-    GROUP BY g.genre_title;
+    SELECT *
+    FROM count_serials_by_genre;
   $BODY$
 LANGUAGE sql;
 

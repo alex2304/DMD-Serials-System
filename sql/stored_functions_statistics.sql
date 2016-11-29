@@ -13,8 +13,9 @@ DROP FUNCTION IF EXISTS get_top5_creators();
 
 CREATE OR REPLACE FUNCTION count_serials_by_genre() RETURNS TABLE (genre CHARACTER, number_of_serials BIGINT) AS $$
   BEGIN
-    RETURN QUERY SELECT *
-                 FROM count_serials_by_genre;
+    RETURN QUERY SELECT g.genre_title, COUNT(*)
+                  FROM genre g NATURAL JOIN serial_has_genre shg
+                  GROUP BY g.genre_title;
   END
 $$ LANGUAGE plpgsql;
 
@@ -24,14 +25,6 @@ CREATE OR REPLACE FUNCTION get_avg_episode_duration_for_serial() RETURNS TABLE (
   BEGIN
     RETURN QUERY SELECT *
                  FROM avg_episode_duration_for_serial;
-  END
-$$ LANGUAGE plpgsql;
-
---Find top 5 serials in each genre
-CREATE OR REPLACE FUNCTION get_top_5_serials_in_each_genre() RETURNS TABLE (serial_id CHARACTER, genre CHARACTER, rating NUMERIC) AS $$
-  BEGIN
-    SELECT *
-    FROM top_5_serials_in_each_genre;
   END
 $$ LANGUAGE plpgsql;
 
@@ -50,7 +43,7 @@ CREATE OR REPLACE FUNCTION get_top10_rated_episodes_for_the_actor(name CHARACTER
 BEGIN
   RETURN QUERY SELECT top.role_name, top.episode_title, top.serial_title, top.rating
                FROM list_of_episodes_where_each_actor_played_and_role top
-               WHERE top.actor_name = $1
+               WHERE lower(top.actor_name) LIKE lower($1 || '%')
                ORDER BY top.rating DESC
                LIMIT 10;
 END
@@ -123,7 +116,6 @@ $BODY$
   LIMIT 10;
 $BODY$
 LANGUAGE sql;
-
 -- top5 creators sorted by rating of their serials
 CREATE OR REPLACE FUNCTION get_top5_creators() RETURNS
 TABLE(creator_name CHAR, average_serials_rating NUMERIC) AS

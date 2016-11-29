@@ -66,20 +66,18 @@ CREATE OR REPLACE FUNCTION get_seasons_of_serial(_serial_id INTEGER)
 CREATE OR REPLACE FUNCTION get_rating_of(_serial_id INTEGER) RETURNS
   NUMERIC AS
   $BODY$
-    SELECT AVG(e.rating) FROM episode e INNER JOIN serial s
-        ON e.serial_id = s.serial_id AND s.serial_id = _serial_id;
+    SELECT s.rating FROM serial s
+    WHERE s.serial_id = _serial_id;
   $BODY$
   LANGUAGE sql;
 
 CREATE OR REPLACE FUNCTION get_rating_of(_serial_id INTEGER, _season_number INTEGER) RETURNS
   NUMERIC AS
   $BODY$
-    SELECT AVG(e.rating) FROM episode e INNER JOIN season s
-        ON e.serial_id = s.serial_id AND s.serial_id = _serial_id
-        AND e.season_number = s.season_number AND s.season_number = _season_number;
+    SELECT s.rating FROM season s
+     WHERE s.serial_id = _serial_id AND s.season_number = _season_number;
   $BODY$
   LANGUAGE sql;
-
 
 CREATE OR REPLACE FUNCTION get_genres_of_serial_titles(_serial_id INTEGER) RETURNS
   TABLE(genre_title CHAR) AS
@@ -218,8 +216,9 @@ LANGUAGE sql;
 CREATE OR REPLACE FUNCTION get_serials_in_genres_counts() RETURNS
 TABLE(genre_title CHAR,  serials_count BIGINT) AS
   $BODY$
-    SELECT *
-    FROM count_serials_by_genre;
+    SELECT g.genre_title, COUNT(*)
+    FROM genre g NATURAL JOIN serial_has_genre shg
+    GROUP BY g.genre_title;
   $BODY$
 LANGUAGE sql;
 
@@ -291,7 +290,7 @@ TABLE(person_id INTEGER, person_name CHAR, person_gender CHAR, person_birth_date
 $BODY$
   SELECT p.person_id, p.name, p.genger, p.birthdate
   FROM actor a INNER JOIN person p ON p.person_id = a.actor_id
-  WHERE lower(p.name) LIKE ('%' || lower(_name_part) || '%');
+  WHERE lower(p.name) LIKE (lower(_name_part) || '%');
 $BODY$
 LANGUAGE sql;
 
@@ -300,7 +299,7 @@ TABLE(person_id INTEGER, person_name CHAR, person_gender CHAR, person_birth_date
 $BODY$
   SELECT p.person_id, p.name, p.genger, p.birthdate
   FROM director d INNER JOIN person p ON p.person_id = d.director_id
-  WHERE lower(p.name) LIKE ('%' || lower(_name_part) || '%');
+  WHERE lower(p.name) LIKE (lower(_name_part) || '%');
 $BODY$
 LANGUAGE sql;
 
@@ -309,7 +308,7 @@ TABLE(person_id INTEGER, person_name CHAR, person_gender CHAR, person_birth_date
 $BODY$
   SELECT p.person_id, p.name, p.genger, p.birthdate
   FROM writer w INNER JOIN person p ON p.person_id = w.writer_id
-  WHERE lower(p.name) LIKE ('%' || lower(_name_part) || '%');
+  WHERE lower(p.name) LIKE (lower(_name_part) || '%');
 $BODY$
 LANGUAGE sql;
 CREATE OR REPLACE FUNCTION get_top5_best_actor_episodes(_person_id INTEGER)

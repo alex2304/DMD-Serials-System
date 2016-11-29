@@ -906,11 +906,6 @@ CREATE OR REPLACE VIEW avg_episode_duration_for_serial AS
   FROM serial s JOIN episode e ON e.serial_id = s.serial_id
   GROUP BY s.title;
 
-CREATE OR REPLACE VIEW count_serials_by_genre AS
-  SELECT g.genre_title, COUNT(*)
-  FROM genre g NATURAL JOIN serial_has_genre shg
-  GROUP BY g.genre_title;
-
 CREATE OR REPLACE VIEW duration_of_each_serial AS
   SELECT s.title, sum(e.duration) serial_duration, s.serial_id
   FROM episode e JOIN serial s USING (serial_id)

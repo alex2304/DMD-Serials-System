@@ -1,6 +1,3 @@
-
-DROP VIEW IF EXISTS count_serials_by_genre;
-
 DROP VIEW IF EXISTS avg_episode_duration_for_serial;
 
 DROP VIEW IF EXISTS duration_of_each_serial;

@@ -18,7 +18,7 @@ class StatisticsRepository:
                                              " FROM get_top5_serials_with_longest_average_episode()")
 
         return [{"title": str(row['serial_title']).rstrip(),
-                 "avg_episode_length": row['average_episode_length']}
+                 "avg_episode_length": round(row['average_episode_length'], 1)}
                 for row in query_result]
 
     @classmethod

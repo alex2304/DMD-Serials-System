@@ -115,8 +115,8 @@ CREATE OR REPLACE FUNCTION get_duration_of(_serial_id INTEGER) RETURNS
  BIGINT AS
  $BODY$
     SELECT sum(e.duration)
-    FROM season s NATURAL JOIN episode e
-    WHERE s.serial_id = $1;
+    FROM season s INNER JOIN episode e ON e.season_number = s.season_number and e.serial_id = s.serial_id
+    WHERE s.serial_id = _serial_id;
  $BODY$
  LANGUAGE sql;
 
@@ -163,8 +163,8 @@ CREATE OR REPLACE FUNCTION get_duration_of(_serial_id INTEGER, _season_number IN
  BIGINT AS
  $BODY$
     SELECT sum(e.duration)
-    FROM season s NATURAL JOIN episode e
-    WHERE s.serial_id = $1 AND s.season_number = $2;
+    FROM season s INNER JOIN episode e ON e.season_number = s.season_number and e.serial_id = s.serial_id
+    WHERE s.serial_id = _serial_id AND s.season_number = _season_number;
  $BODY$
  LANGUAGE sql;
 
@@ -188,9 +188,9 @@ CREATE OR REPLACE FUNCTION get_episode_writers_names(_serial_id INTEGER, _season
  LANGUAGE sql;
 
 CREATE OR REPLACE FUNCTION get_episode_played(_serial_id INTEGER, _season_number INTEGER, _episode_number INTEGER) RETURNS
- TABLE(actor_name CHAR, role_title CHAR, award_title CHAR, award_year INTEGER) AS
+ TABLE(actor_id INTEGER, actor_name CHAR, role_title CHAR, award_title CHAR, award_year INTEGER) AS
  $BODY$
-   SELECT temp.actor_name, temp.role_name, rha.award_title, rha.year
+   SELECT temp.actor_id, temp.actor_name, temp.role_name, rha.award_title, rha.year
    FROM list_of_episodes_where_each_actor_played_and_role temp NATURAL JOIN plays pl
      LEFT JOIN role_has_award rha ON pl.played_id = rha.played_id
                                      AND rha.serial_id = $1 AND rha.season_number = $2 AND rha.episode_number = $3
@@ -200,14 +200,14 @@ CREATE OR REPLACE FUNCTION get_episode_played(_serial_id INTEGER, _season_number
 
 --All played roles with awards (if awards exist) for the serial with _serial_id
 CREATE OR REPLACE FUNCTION get_serial_played(_serial_id INTEGER) RETURNS
-TABLE(actor_name CHAR, role_title CHAR, award_title CHAR, award_year INTEGER) AS
+TABLE(actor_id INTEGER, actor_name CHAR, role_title CHAR, award_title CHAR, award_year INTEGER) AS
   $BODY$
-    SELECT temp.actor_name, temp.role_name, rha.award_title, rha.year
+    SELECT temp.actor_id, temp.actor_name, temp.role_name, rha.award_title, rha.year
    FROM list_of_episodes_where_each_actor_played_and_role temp NATURAL JOIN plays pl
      LEFT JOIN role_has_award rha ON pl.played_id = rha.played_id
                                      AND rha.serial_id = $1
    WHERE temp.serial_id = $1
-    GROUP BY temp.actor_name, temp.role_name, rha.award_title, rha.year
+    GROUP BY temp.actor_name, temp.role_name, rha.award_title, rha.year, temp.actor_id
     ORDER BY temp.actor_name, rha.year, rha.award_title;
   $BODY$
 LANGUAGE sql;
@@ -290,7 +290,7 @@ TABLE(person_id INTEGER, person_name CHAR, person_gender CHAR, person_birth_date
 $BODY$
   SELECT p.person_id, p.name, p.genger, p.birthdate
   FROM actor a INNER JOIN person p ON p.person_id = a.actor_id
-  WHERE lower(p.name) LIKE (lower(_name_part) || '%');
+  WHERE lower(p.name) LIKE ('%' || lower(_name_part) || '%');
 $BODY$
 LANGUAGE sql;
 
@@ -299,7 +299,7 @@ TABLE(person_id INTEGER, person_name CHAR, person_gender CHAR, person_birth_date
 $BODY$
   SELECT p.person_id, p.name, p.genger, p.birthdate
   FROM director d INNER JOIN person p ON p.person_id = d.director_id
-  WHERE lower(p.name) LIKE (lower(_name_part) || '%');
+  WHERE lower(p.name) LIKE ('%' || lower(_name_part) || '%');
 $BODY$
 LANGUAGE sql;
 
@@ -308,7 +308,7 @@ TABLE(person_id INTEGER, person_name CHAR, person_gender CHAR, person_birth_date
 $BODY$
   SELECT p.person_id, p.name, p.genger, p.birthdate
   FROM writer w INNER JOIN person p ON p.person_id = w.writer_id
-  WHERE lower(p.name) LIKE (lower(_name_part) || '%');
+  WHERE lower(p.name) LIKE ('%' || lower(_name_part) || '%');
 $BODY$
 LANGUAGE sql;
 CREATE OR REPLACE FUNCTION get_top5_best_actor_episodes(_person_id INTEGER)
@@ -330,10 +330,10 @@ CREATE OR REPLACE FUNCTION get_top5_best_director_episodes(_person_id INTEGER)
     episode_number INTEGER, season_number INTEGER, serial_id INTEGER) AS $$
 BEGIN
   RETURN QUERY SELECT e.release_date release_date, e.title episode_title, s.title serial_title, e.rating, e.episode_number, e.season_number, e.serial_id
-                 FROM episode e NATURAL JOIN films NATURAL JOIN plays pl JOIN role r ON r.role_id = pl.role_id
+                 FROM episode e JOIN directs dir on dir.episode_number = e.episode_number and dir.season_number = e.season_number and dir.serial_id = e.serial_id
                    NATURAL JOIN director d JOIN person p ON d.director_id = p.person_id JOIN serial s ON e.serial_id = s.serial_id
                  WHERE p.person_id = _person_id
-GROUP BY s.title, e.title, r.title, e.rating, e.release_date, e.episode_number, e.season_number, e.serial_id
+GROUP BY s.title, e.title, e.rating, e.release_date, e.episode_number, e.season_number, e.serial_id
 ORDER BY e.rating DESC, s.title, e.title
 LIMIT 5;
 END
@@ -344,11 +344,12 @@ CREATE OR REPLACE FUNCTION get_top5_best_writer_episodes(_person_id INTEGER)
     episode_number INTEGER, season_number INTEGER, serial_id INTEGER) AS $$
 BEGIN
   RETURN QUERY SELECT e.release_date release_date, e.title episode_title, s.title serial_title, e.rating, e.episode_number, e.season_number, e.serial_id
-                 FROM episode e NATURAL JOIN films NATURAL JOIN plays pl JOIN role r ON r.role_id = pl.role_id
+                 FROM episode e JOIN writes wr on wr.episode_number = e.episode_number and wr.season_number = e.season_number and wr.serial_id = e.serial_id
                    NATURAL JOIN writer w JOIN person p ON w.writer_id = p.person_id JOIN serial s ON e.serial_id = s.serial_id
                  WHERE p.person_id = _person_id
-GROUP BY s.title, e.title, r.title, e.rating, e.release_date, e.episode_number, e.season_number, e.serial_id
+GROUP BY s.title, e.title, e.rating, e.release_date, e.episode_number, e.season_number, e.serial_id
 ORDER BY e.rating DESC, s.title, e.title
 LIMIT 5;
 END
 $$ LANGUAGE plpgsql;
+
